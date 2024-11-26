@@ -58,9 +58,9 @@ const App = () => {
           <span>or use your email for registration</span>
           <input
             type="text"
-            name="name"
+            name="username"
             placeholder="Name"
-            value={formData.name}
+            value={formData.username}
             onChange={handleChange}
             required
           />
