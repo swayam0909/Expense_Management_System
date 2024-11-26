@@ -1,21 +1,37 @@
 package com.ExpenseManagement.Backend.Model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 @Document(collection = "Users")
-@Data
 public class Users {
+
     @Id
     private String userId;
+
     private String username;
+
     private String password;
+
+    @Indexed(unique = true)  // Index email field and make it unique
     private String email;
+
     private String role;
 
+    // Constructor
+    public Users(String userId, String username, String password, String email, String role) {
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.role = role;
+    }
+
+    // Default constructor
+    public Users() {}
+
+    // Getters and setters
     public String getUserId() {
         return userId;
     }
@@ -54,5 +70,30 @@ public class Users {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    // Override equals and hashCode (Optional but recommended for better object comparison)
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Users users = (Users) o;
+        return userId.equals(users.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return userId.hashCode();
+    }
+
+    // Optional toString method for easier debugging
+    @Override
+    public String toString() {
+        return "Users{" +
+                "userId='" + userId + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", role='" + role + '\'' +
+                '}';
     }
 }

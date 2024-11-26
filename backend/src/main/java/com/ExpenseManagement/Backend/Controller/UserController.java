@@ -20,37 +20,37 @@ public class UserController {
     // Register API
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Users user) {
+        // Check if username already exists
         if (userRepository.findByUsername(user.getUsername()) != null) {
             return ResponseEntity.badRequest().body("Username already exists.");
         }
 
-        // Check if email exists
-        for (Users existingUser : userRepository.findAll()) {
-            if (existingUser.getEmail().equals(user.getEmail())) {
-                return ResponseEntity.badRequest().body("Email already exists.");
-            }
+        // Check if email already exists
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            return ResponseEntity.badRequest().body("Email already exists.");
         }
 
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully.");
     }
 
-    // Login API
+    // Login API - Modify to use email instead of username
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginDetails) {
-        String username = loginDetails.get("username");
+        String email = loginDetails.get("email");  // Get email from login data
         String password = loginDetails.get("password");
 
-        Users user = userRepository.findByUsername(username);
+        // Find user by email instead of username
+        Users user = userRepository.findByEmail(email);  // Use email to fetch user
 
         if (user == null || !user.getPassword().equals(password)) {
-            return ResponseEntity.badRequest().body("Invalid username or password.");
+            return ResponseEntity.badRequest().body("Invalid email or password.");
         }
 
-        // Success
+        // Successful login
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login successful.");
-        response.put("role", user.getRole()); // You can add more details here if needed
+        response.put("role", user.getRole()); // Return user role or any other info
 
         return ResponseEntity.ok(response);
     }
