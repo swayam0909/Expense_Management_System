@@ -24,7 +24,16 @@ const App = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = isSignUp ? 'http://localhost:8080/auth/register' : 'http://localhost:8080/auth/login'; // Use the correct backend URL
+
+    // Validate passwords if in SignUp mode
+    if (isSignUp && formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return; // Stop form submission if passwords don't match
+    }
+
+    const url = isSignUp
+      ? 'http://localhost:8080/auth/register'
+      : 'http://localhost:8080/auth/login'; // Use the correct backend URL
     const payload = isSignUp
       ? { username: formData.username, email: formData.email, password: formData.password }
       : { email: formData.email, password: formData.password };
