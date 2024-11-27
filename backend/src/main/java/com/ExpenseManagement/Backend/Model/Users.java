@@ -4,6 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.time.LocalDateTime;
+
 @Document(collection = "Users")
 public class Users {
 
@@ -14,12 +16,16 @@ public class Users {
 
     private String password;
 
-    @Indexed(unique = true)  // Index email field and make it unique
+    @Indexed(unique = true) // Index email field and make it unique
     private String email;
 
     private String role;
 
-    // Constructor
+    // Fields for Forgot Password functionality
+    private String resetToken;
+    private LocalDateTime resetTokenExpiry;
+
+    // Constructors
     public Users(String userId, String username, String password, String email, String role) {
         this.userId = userId;
         this.username = username;
@@ -28,10 +34,9 @@ public class Users {
         this.role = role;
     }
 
-    // Default constructor
     public Users() {}
 
-    // Getters and setters
+    // Getters and Setters
     public String getUserId() {
         return userId;
     }
@@ -70,6 +75,22 @@ public class Users {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public LocalDateTime getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 
     // Override equals and hashCode (Optional but recommended for better object comparison)

@@ -22,6 +22,13 @@ const App = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
 
+    // Validate email format
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailPattern.test(forgotEmail)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:8080/auth/forgot-password', {
         method: 'POST',
@@ -49,6 +56,7 @@ const App = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate passwords if in SignUp mode
     if (isSignUp && formData.password !== formData.confirmPassword) {
       alert('Passwords do not match!');
       return;
@@ -56,7 +64,7 @@ const App = () => {
 
     const url = isSignUp
       ? 'http://localhost:8080/auth/register'
-      : 'http://localhost:8080/auth/login';
+      : 'http://localhost:8080/auth/login'; // Use the correct backend URL
     const payload = isSignUp
       ? { username: formData.username, email: formData.email, password: formData.password }
       : { email: formData.email, password: formData.password };

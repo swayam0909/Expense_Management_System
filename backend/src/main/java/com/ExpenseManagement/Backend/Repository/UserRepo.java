@@ -4,6 +4,6 @@ import com.ExpenseManagement.Backend.Model.Users;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface UserRepo extends MongoRepository<Users, String> {
-    Users findByUsername(String username);// Existing method
-    Users findByEmail(String email);  // Add this method for email-based login
+    Users findByEmail(String email);  // For email-based operations
+    Users findByResetToken(String resetToken); // Optional, for reset-password functionality
 }
