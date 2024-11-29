@@ -1,12 +1,17 @@
-// Report.js
 import React from 'react';
 
 const Report = () => {
+  // Example data
+  const totalIncome = 50000;
+  const totalExpense = 20000;
+  const balance = totalIncome - totalExpense;
+
   return (
-    <div className="report">
-      <h2>Expense Report</h2>
-      <p>Generate and view your financial reports here.</p>
-      {/* Add functionality or content here */}
+    <div>
+      <h2>Report</h2>
+      <p>Total Income: ₹{totalIncome}</p>
+      <p>Total Expense: ₹{totalExpense}</p>
+      <p>Balance: ₹{balance}</p>
     </div>
   );
 };

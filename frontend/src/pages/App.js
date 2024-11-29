@@ -80,6 +80,7 @@ const App = () => {
   };
 
   return (
+    
     <div className={`container ${isSignUp ? 'active' : ''}`} id="container">
       {!isForgotPassword ? (
         <>
@@ -192,6 +193,7 @@ const App = () => {
         </div>
       )}
     </div>
+  
   );
 };
 
