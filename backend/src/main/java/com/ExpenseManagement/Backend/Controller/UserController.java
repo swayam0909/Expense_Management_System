@@ -2,12 +2,15 @@ package com.ExpenseManagement.Backend.Controller;
 
 import com.ExpenseManagement.Backend.Model.Users;
 import com.ExpenseManagement.Backend.Repository.UserRepo;
+import com.ExpenseManagement.Backend.Service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -16,15 +19,19 @@ public class UserController {
     @Autowired
     private UserRepo userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     // Register API
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Users user) {
-        // Check if email already exists
         if (userRepository.findByEmail(user.getEmail()) != null) {
             return ResponseEntity.badRequest().body("Email already exists.");
         }
 
-        // Save user
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // Hash password
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully.");
     }
@@ -35,45 +42,37 @@ public class UserController {
         String email = loginDetails.get("email");
         String password = loginDetails.get("password");
 
-        // Validate email
         Users user = userRepository.findByEmail(email);
-        if (user == null) {
-            return ResponseEntity.badRequest().body("Invalid email.");
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.badRequest().body("Invalid email or password.");
         }
 
-        // Validate password
-        if (!user.getPassword().equals(password)) {
-            return ResponseEntity.badRequest().body("Invalid password.");
-        }
-
-        // Successful login response
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Login successful.");
-        response.put("role", user.getRole()); // Return role or other user data
-        response.put("email", user.getEmail()); // Include email in the response
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("Login successful.");
     }
 
     // Forgot Password API
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
+        try {
+            Users user = userRepository.findByEmail(email);
+            if (user == null) {
+                return ResponseEntity.badRequest().body("No user found with the provided email.");
+            }
 
-        // Find user by email
-        Users user = userRepository.findByEmail(email);
-        if (user == null) {
-            return ResponseEntity.badRequest().body("No user found with the provided email.");
+            String resetToken = UUID.randomUUID().toString();
+            user.setResetToken(resetToken);
+            user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
+            userRepository.save(user);
+
+            String emailBody = "Your password reset token is: " + resetToken;
+            emailService.sendEmail(email, "Password Reset Request", emailBody);
+
+            return ResponseEntity.ok("Reset token sent to your email.");
+        } catch (Exception e) {
+            e.printStackTrace(); // Logs the full error
+            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
         }
-
-        // Generate a reset token and expiry
-        String resetToken = java.util.UUID.randomUUID().toString();
-        user.setResetToken(resetToken);
-        user.setResetTokenExpiry(java.time.LocalDateTime.now().plusMinutes(15)); // Token valid for 15 minutes
-        userRepository.save(user);
-
-        // You can send an email with the reset token here (mock response)
-        return ResponseEntity.ok("Reset token generated. Please check your email.");
     }
 
     // Reset Password API
@@ -82,18 +81,30 @@ public class UserController {
         String resetToken = request.get("resetToken");
         String newPassword = request.get("newPassword");
 
-        // Find user by reset token
         Users user = userRepository.findByResetToken(resetToken);
-        if (user == null || user.getResetTokenExpiry().isBefore(java.time.LocalDateTime.now())) {
+        if (user == null || user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
             return ResponseEntity.badRequest().body("Invalid or expired reset token.");
         }
 
-        // Update password and clear reset token
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword)); // Hash new password
         user.setResetToken(null);
         user.setResetTokenExpiry(null);
         userRepository.save(user);
 
         return ResponseEntity.ok("Password reset successfully.");
     }
+
+    // Fetch User Details API
+    @GetMapping("/user-info")
+    public ResponseEntity<?> getUserInfo(@RequestParam String email) {
+        Users user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found.");
+        }
+
+        // Return only necessary information (like username)
+        return ResponseEntity.ok(Map.of("username", user.getUsername()));
+    }
+
 }

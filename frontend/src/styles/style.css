@@ -7,28 +7,37 @@
     font-family: 'Montserrat', sans-serif;
 }
 
-body {
-    background-color: #c9d6ff;
-    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+
+body html{
+    height: 100%;
+    margin: 0;
     display: flex;
-    align-items: center;
     justify-content: center;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden; /* Prevent overflow */
+    align-items: center;
+    background: linear-gradient(to right, #e2e2e2, #c9d6ff); /* Keep your gradient */
+    
 }
+/* #root  {
+    display: flex;
+    justify-content: center;  
+    align-items: center;      
+    height: 100vh;          
+    width: 100%;
+} */
+
 .container {
+    
     background-color: #fff;
     border-radius: 30px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
-    position: relative;
+    position: fixed;
     overflow: hidden;
-    
     width: 768px;
     max-width: 100%;
     min-height: 480px;
-    display: flex;  /* Added flex layout */
-    flex-direction: row;  /* Ensure content is aligned in a row */
+    display: flex;
+    flex-direction: row;
+    transition: all 0.5s ease-in-out;
 }
 
 .container p {
@@ -49,6 +58,12 @@ body {
     margin: 15px 0 10px;
 }
 
+.container a:hover {
+    color: #512da8;
+    text-decoration: underline;
+    transition: color 0.3s ease-in-out;
+}
+
 .container button {
     background-color: #512da8;
     color: #fff;
@@ -61,6 +76,12 @@ body {
     text-transform: uppercase;
     margin-top: 10px;
     cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.container button:hover {
+    background-color: #3949ab;
+    transform: scale(1.05);
 }
 
 .container button.hidden {
@@ -76,18 +97,29 @@ body {
     flex-direction: column;
     padding: 0 40px;
     height: 100%;
-    width: 100%;  /* Ensure full width */
+    width: 100%;
 }
 
 .container input {
     background-color: #eee;
-    border: none;
+    border: 1px solid #ddd;
     margin: 8px 0;
     padding: 10px 15px;
     font-size: 13px;
     border-radius: 8px;
     width: 100%;
     outline: none;
+    transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+.container input:focus {
+    border-color: #512da8;
+    background-color: #f5f5f5;
+    box-shadow: 0 0 5px rgba(81, 45, 168, 0.5);
+}
+
+input.invalid {
+    border: 1px solid #e57373;
 }
 
 .form-container {
@@ -138,13 +170,20 @@ body {
 
 .social-icons a {
     border: 1px solid #ccc;
-    border-radius: 20%;
+    border-radius: 50%;
     display: inline-flex;
     justify-content: center;
     align-items: center;
     margin: 0 3px;
     width: 40px;
     height: 40px;
+    transition: all 0.3s ease-in-out;
+}
+
+.social-icons a:hover {
+    border-color: #512da8;
+    background-color: #512da8;
+    color: #fff;
 }
 
 .toggle-container {
@@ -211,4 +250,28 @@ body {
 
 .container.active .toggle-right {
     transform: translateX(200%);
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        width: 95%;
+        min-height: auto;
+    }
+
+    .toggle {
+        width: 100%;
+        left: 0;
+    }
+
+    .form-container {
+        width: 100%;
+        position: relative;
+    }
+
+    .toggle-panel {
+        width: 100%;
+        transform: none;
+    }
 }

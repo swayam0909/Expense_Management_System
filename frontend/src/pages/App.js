@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/style.css';
 
+
 const App = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
@@ -10,6 +11,9 @@ const App = () => {
     password: '',
     confirmPassword: '',
   });
+  const [email, setEmail] = useState('');
+  
+   
   const [isForgotPassword, setIsForgotPassword] = useState(false); // New state for Forgot Password
   const [forgotEmail, setForgotEmail] = useState(""); // Email input for Forgot Password
 
@@ -18,6 +22,8 @@ const App = () => {
   const handleToggle = () => {
     setIsSignUp((prev) => !prev);
   };
+
+  
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
@@ -69,6 +75,7 @@ const App = () => {
       });
 
       if (response.ok) {
+        localStorage.setItem('userEmail', formData.email);
         navigate('/dashboard');
       } else {
         alert('Error: ' + (await response.text()));
@@ -80,11 +87,18 @@ const App = () => {
   };
 
   return (
-    
-    <div className={`container ${isSignUp ? 'active' : ''}`} id="container">
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      backgroundColor: '#f5f5f5',
+  }}>
+    <div className={`container ${isSignUp ? 'active' : ''}`} >
       {!isForgotPassword ? (
         <>
           {/* Sign Up Form */}
+          <div className='overallForm'>
           <div className="form-container sign-up">
             <form onSubmit={handleSubmit}>
               <h1>Create Account</h1>
@@ -172,7 +186,9 @@ const App = () => {
               </div>
             </div>
           </div>
+          </div>
         </>
+
       ) : (
         <div className="form-container forgot-password">
           <form onSubmit={handleForgotPassword}>
@@ -193,7 +209,7 @@ const App = () => {
         </div>
       )}
     </div>
-  
+    </div>
   );
 };
 

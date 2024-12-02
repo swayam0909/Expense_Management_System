@@ -1,9 +1,12 @@
-import React from 'react';
-import '../styles/dashboard.css';  // Import the CSS file
-import { Line } from 'react-chartjs-2'; // Assuming you're using Line chart from react-chartjs-2
+import React, { useState, useEffect } from 'react';
+import '../styles/dashboard.css';
+import { Link } from 'react-router-dom';
+import { Line } from 'react-chartjs-2';
+import '../styles/calendar.css';  // Adjust the path if necessary
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import Calendar from 'react-calendar';  // Import the calendar component
+import 'react-calendar/dist/Calendar.css';  // Import the calendar styles
 
-// Registering required Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
@@ -27,8 +30,20 @@ const Dashboard = () => {
     ],
   };
 
+  const [date, setDate] = useState(new Date()); // Initialize calendar with current date
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+     const email = localStorage.getItem('userEmail');
+    
+    fetch(`http://localhost:8080/auth/user-info?email=${encodeURIComponent(email)}`)
+      .then((response) => response.json())
+      .then((data) => setUser(data)) // Set the user info to state
+      .catch((error) => console.error('Error fetching user info:', error));
+  }, []);
+
   return (
-    <div > 
+    <div>
       <div className="top-container">
         <div className="nav">
           <div className="logo">
@@ -37,10 +52,10 @@ const Dashboard = () => {
           </div>
 
           <div className="nav-links">
-            <a href="./Expense.js">Expenses</a>
-            <a href="./Income.js">Income</a>
-            <a href="./Report.js">Report</a>
-            <a href="#">Settings</a>
+          <Link to="/expense">Expenses</Link>
+          <Link to="/income">Income</Link>
+          <Link to="/report">Report</Link>
+          <Link to="/settings">Settings</Link>
           </div>
 
           <div className="right-section">
@@ -49,9 +64,11 @@ const Dashboard = () => {
 
             <div className="profile">
               <div className="info">
-                <img src="../assets/profile.png" alt="Profile" />
-                <div>
-                  <a href="#">Alex Johnson</a>
+              <img src="../assets/profile.png" alt="Profile"  />
+
+
+              <div>
+                  <a href="#">{user ? user.username : 'Loading...'}</a>
                 </div>
               </div>
               <i className="bx bx-chevron-down"></i>
@@ -165,41 +182,41 @@ const Dashboard = () => {
           <div className="header">
             <h4>Schedule Expenses</h4>
             <a href="#">
-              July <i className="bx bx-chevron-down"></i>
+              {date.toLocaleString('default', { month: 'long' })} <i className="bx bx-chevron-down"></i>
             </a>
           </div>
 
-          <div className="dates">
-            <div className="item">
-              <h5>Mo</h5>
-              <a href="#">12</a>
-            </div>
-            <div className="item active">
-              <h5>Tu</h5>
-              <a href="#">13</a>
-            </div>
-            <div className="item">
-              <h5>We</h5>
-              <a href="#">14</a>
-            </div>
-            <div className="item">
-              <h5>Th</h5>
-              <a href="#">15</a>
-            </div>
-            <div className="item">
-              <h5>Fr</h5>
-              <a href="#">16</a>
-            </div>
-            <div className="item">
-              <h5>Sa</h5>
-              <a href="#">17</a>
-            </div>
-            <div className="item">
-              <h5>Su</h5>
-              <a href="#">18</a>
-            </div>
+          {/* Calendar Component */}
+          <div className="calendar-container">
+        <div className="calendar-header">
+          <h4>Calendar</h4>
+          <div className="month-selector">
+            <i className="bx bx-chevron-left"></i>
+            <span>January</span>
+            <i className="bx bx-chevron-right"></i>
           </div>
-
+        </div>
+        <div className="days-of-week">
+          <div>Mon</div>
+          <div>Tue</div>
+          <div>Wed</div>
+          <div>Thu</div>
+          <div>Fri</div>
+          <div>Sat</div>
+          <div>Sun</div>
+        </div>
+        <div className="calendar-days">
+          <div className="item disabled">1</div>
+          <div className="item active">2</div>
+          <div className="item">3</div>
+          <div className="item">4</div>
+          <div className="item">5</div>
+          <div className="item">6</div>
+          <div className="item">7</div>
+          {/* Add other days here */}
+        </div>
+      </div>
+<br></br>
           <div className="events">
             <div className="item">
               <div>
