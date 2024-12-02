@@ -5,23 +5,25 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "expenses")
-public class Expense {
+@Document(collection = "incomes")
+public class Income {
 
     @Id
     private String id;
-    private String email;  // Link to a particular user by email
-    private String category;
+    private String userId;  // Link to a particular user
+    private String email;    // Add email directly to Income
+    private String source;
     private double amount;
     private LocalDateTime date;
     private String description;
 
     // Constructors, getters, and setters
-    public Expense() {}
+    public Income() {}
 
-    public Expense(String email, String category, double amount, LocalDateTime date, String description) {
-        this.email = email;
-        this.category = category;
+    public Income(String userId, String email, String source, double amount, LocalDateTime date, String description) {
+        this.userId = userId;
+        this.email = email;  // Set email
+        this.source = source;
         this.amount = amount;
         this.date = date;
         this.description = description;
@@ -35,6 +37,14 @@ public class Expense {
         this.id = id;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -43,12 +53,12 @@ public class Expense {
         this.email = email;
     }
 
-    public String getCategory() {
-        return category;
+    public String getSource() {
+        return source;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public double getAmount() {

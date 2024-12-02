@@ -1,32 +1,33 @@
-/* Wrapper for the entire ExpenseForm component */
-.expense-form-wrapper {
+/* Container for the entire IncomeForm component */
+.income-form-wrapper {
   display: flex;
   justify-content: space-between;
   padding: 20px;
 }
 
-/* Expense form container styling */
-.expense-form-container {
+/* Form container styling */
+.income-form-container {
   flex: 1;
-  max-width: 45%;
+  max-width: 40%;
   padding: 20px;
   margin-top: 50px;
-  margin-right: 15px;
   margin-left: auto;
+  margin-right: 20px;
   border: 2px solid #ccc;
   border-radius: 15px;
   background-color: #f9f9f9;
 }
 
-/* Expense History container styling */
+/* Income History container styling */
 .history-container {
   flex: 1;
-  margin-left: 15px;
+  max-width: 40%;
+  margin-top: 50px;
   margin-right: auto;
-  max-width: 45%;
+  margin-left: 20px;
   padding: 20px;
   border: 2px solid #ccc;
-  border-radius: 5px;
+  border-radius: 15px;
   background-color: #f9f9f9;
 }
 
@@ -43,7 +44,7 @@
 }
 
 /* Form styling */
-.expense-form {
+.income-form {
   display: flex;
   flex-direction: column;
 }
@@ -59,7 +60,7 @@
 }
 
 /* Input fields styling */
-.form-group input, .form-group select {
+.form-group input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -80,17 +81,8 @@
   background-color: #4527a0;
 }
 
-/* Expense History section styling */
-.history-header {
-  cursor: pointer;
-  color: #512da8;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-/* Expense items styling */
-.expense-history {
+/* Income History section styling */
+.income-history {
   display: flex;
   flex-direction: column;
   padding: 10px;
@@ -98,38 +90,20 @@
   border-radius: 5px;
 }
 
-.expense-item {
+/* Individual income items styling */
+.income-item {
   margin-bottom: 20px;
   padding: 10px;
   background-color: #e9e9e9;
   border-radius: 5px;
 }
 
-.expense-item p {
+/* Income item paragraph styling */
+.income-item p {
   margin: 5px 0;
 }
 
-.expense-item strong {
+/* Income item label styling */
+.income-item strong {
   color: #512da8;
-}
-.back-button-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 30px;  /* Adjust the margin to make sure the button is below the form and history */
-}
-
-.back-btn {
-  background-color: #512da8;
-  color: white;
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.back-btn:hover {
-  background-color: #512da8;
 }
