@@ -1,0 +1,80 @@
+.total-income-page {
+    font-family: "Arial", sans-serif;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f4f4f9;
+  }
+  
+  .income-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .income-header h1 {
+    color: #512da8;
+  }
+  
+  .income-summary {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .income-summary h2 {
+    color: #444;
+  }
+  
+  .income-amount {
+    font-size: 2rem;
+    color: #4caf50;
+    margin: 10px 0;
+  }
+  
+  .add-income-btn {
+    background-color: #512da8;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .add-income-btn:hover {
+    background-color: #673ab7;
+  }
+  
+  .income-history {
+    margin-top: 30px;
+  }
+  
+  .income-history h2 {
+    margin-bottom: 15px;
+    color: #444;
+  }
+  
+  .income-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+  }
+  
+  .income-table th,
+  .income-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .income-table th {
+    background-color: #512da8;
+    color: #fff;
+  }
+  
+  .income-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .income-table tr:hover {
+    background-color: #ddd;
+  }
+  

@@ -1,0 +1,56 @@
+.total-expenses-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    color: #512da8;
+    margin-bottom: 20px;
+  }
+  
+  .summary {
+    background: #e8eaf6;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  }
+  
+  .search-bar input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .expenses-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .expenses-table th,
+  .expenses-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .expenses-table th {
+    background: #512da8;
+    color: #fff;
+  }
+  
+  .expenses-table tbody tr:nth-child(even) {
+    background: #f2f2f2;
+  }
+  
+  .no-data {
+    text-align: center;
+    color: #999;
+  }
+  

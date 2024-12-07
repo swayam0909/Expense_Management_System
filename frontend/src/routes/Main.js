@@ -6,7 +6,10 @@ import ForgotPassword from '../components/forgot-password';
 import Expense from '../components/Expense';
 import Income from '../components/Income';
 import Report from '../components/Report';
+import TotalExpenses from '../components/TotalExpenses.js';
+import TotalIncome from '../components/TotalIncome.js';
 import ResetPassword from '../components/ResetPassword';  // Import ResetPassword component
+
 
 const Main = () => {
   return (
@@ -15,6 +18,8 @@ const Main = () => {
         {/* Routes */}
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/total-income" element={<TotalIncome />} />
+          <Route path="/total-expenses" element={<TotalExpenses />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} /> {/* New route for Reset Password */}

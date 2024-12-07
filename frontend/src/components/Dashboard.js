@@ -2,45 +2,213 @@ import React, { useState, useEffect } from 'react';
 import '../styles/dashboard.css';
 import { Link } from 'react-router-dom';
 import { Line } from 'react-chartjs-2';
-import '../styles/calendar.css';  // Adjust the path if necessary
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import Calendar from 'react-calendar';  // Import the calendar component
-import 'react-calendar/dist/Calendar.css';  // Import the calendar styles
+import { Bar } from 'react-chartjs-2';
+import axios from 'axios';
+import '../styles/calendar.css';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement,BarElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import '../styles/Chart.css'
+import profileImage from '../assets/profile.png';
+ChartJS.register(CategoryScale, LinearScale, PointElement, BarElement,LineElement, Title, Tooltip, Legend);
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+const Dashboard = ({email}) => {
+  const [activeTab, setActiveTab] = useState('1Y'); // Default to '1Y'
+  const [date, setDate] = useState(new Date());
+  const [user, setUser] = useState(null);
+  const [incomeData, setIncomeData] = useState([]);
+  const [expenseData, setExpenseData] = useState([]);
+  const [chartData, setChartData] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true); // To handle loading state
+  const [error, setError] = useState(null); // To handle errors
+  const [newEvent, setNewEvent] = useState({ name: '', date: '' }); // State for new event form
 
-const Dashboard = () => {
-  const data = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+
+  const [monthlyIncomeData, setMonthlyIncomeData] = useState([]);
+  const [monthlyExpenseData, setMonthlyExpenseData] = useState([]);
+  const [lastMonthIncome, setLastMonthIncome] = useState(null);
+  const [last6MonthsIncome, setLast6MonthsIncome] = useState(null);
+  const [lastYearIncome, setLastYearIncome] = useState(null);
+  const [lastMonthExpense, setLastMonthExpense] = useState(null);
+  const [last6MonthsExpense, setLast6MonthsExpense] = useState(null);
+  const [lastYearExpense, setLastYearExpense] = useState(null);
+
+  const [weeklyData, setWeeklyData] = useState({});
+
+  const barChartData = {
+    labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'], // Weekdays (abbreviated)
     datasets: [
       {
-        label: 'Income',
-        data: [1000, 2000, 1500, 2200, 2500, 3000],
-        fill: false,
-        borderColor: 'green',
-        tension: 0.1,
-      },
-      {
-        label: 'Expenses',
-        data: [500, 1500, 1000, 1800, 1700, 2300],
-        fill: false,
-        borderColor: 'red',
-        tension: 0.1,
+        label:'Expense',
+        data: [
+          weeklyData.MONDAY || 0, 
+          weeklyData.TUESDAY || 0, 
+          weeklyData.WEDNESDAY || 0, 
+          weeklyData.THURSDAY || 0, 
+          weeklyData.FRIDAY || 0, 
+          weeklyData.SATURDAY || 0, 
+          weeklyData.SUNDAY || 0,
+        ],
+        backgroundColor: 'rgba(2, 90, 132, 0.6)',
       },
     ],
   };
 
-  const [date, setDate] = useState(new Date()); // Initialize calendar with current date
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
-     const email = localStorage.getItem('userEmail');
+    const email = localStorage.getItem('userEmail');
+
+
+      // Fetch the weekly expense data from the backend
+    axios.get(`http://localhost:8080/expense/weekly?email=${email}`)
+    .then((response) => {
+      setWeeklyData(response.data); // Set weekly expenses data
+      setLoading(false); // Stop loading once data is fetched
+    })
+    .catch((error) => {
+      console.error("Error fetching weekly expenses", error);
+      setLoading(false);
+    });
+
+
+      // Fetch income data
+      axios.get(`http://localhost:8080/income/1M?email=${email}`)
+          .then(response => setLastMonthIncome(response.data.totalIncomeLast1M))
+          .catch(error => console.error('Error fetching total income for last month:', error));
+
+      axios.get(`http://localhost:8080/income/6M?email=${email}`)
+          .then(response => setLast6MonthsIncome(response.data.totalIncomeLast6M))
+          .catch(error => console.error('Error fetching total income for last 6 months:', error));
+
+      axios.get(`http://localhost:8080/income/1Y?email=${email}`)
+          .then(response => setLastYearIncome(response.data.totalIncomeLast1Y))
+          .catch(error => console.error('Error fetching total income for last year:', error));
+
+      // Fetch expense data
+      axios.get(`http://localhost:8080/expense/1M?email=${email}`)
+          .then(response => setLastMonthExpense(response.data.totalExpenseLast1M))
+          .catch(error => console.error('Error fetching total expense for last month:', error));
+
+      axios.get(`http://localhost:8080/expense/6M?email=${email}`)
+          .then(response => setLast6MonthsExpense(response.data.totalExpenseLast6M))
+          .catch(error => console.error('Error fetching total expense for last 6 months:', error));
+
+      axios.get(`http://localhost:8080/expense/1Y?email=${email}`)
+          .then(response => setLastYearExpense(response.data.totalExpenseLast1Y))
+          .catch(error => console.error('Error fetching total expense for last year:', error))
+
+
+
+    //for username accessing
+   fetch(`http://localhost:8080/auth/user-info?email=${encodeURIComponent(email)}`)
+     .then((response) => response.json())
+     .then((data) => setUser(data)) // Set the user info to state
+     .catch((error) => console.error('Error fetching user info:', error));
+
+  // Fetch income and expenses in parallel
+  Promise.allSettled([
+    fetch(`http://localhost:8080/income/total?email=${encodeURIComponent(email)}`),
+    fetch(`http://localhost:8080/expense/total?email=${encodeURIComponent(email)}`),
+  ])
+    .then((results) => {
+      // Handle income response
+      const incomeResult = results[0];
+      if (incomeResult.status === 'fulfilled' && incomeResult.value.ok) {
+        incomeResult.value.json().then((data) => setIncomeData(data));
+      } else {
+        console.error('Error fetching income data:', incomeResult.reason || 'Request failed');
+      }
+
+      // Handle expense response
+      const expenseResult = results[1];
+      if (expenseResult.status === 'fulfilled' && expenseResult.value.ok) {
+        expenseResult.value.json().then((data) => setExpenseData(data));
+      } else {
+        console.error('Error fetching expense data:', expenseResult.reason || 'Request failed');
+      }
+    })
+    .catch((error) => {
+      console.error('Unexpected error:', error);
+    });
+
+  // Fetch events separately
+  fetch('http://localhost:8080/api/events')
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch events');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      setEvents(Array.isArray(data) ? data : []); // Ensure data is an array
+    })
+    .catch((error) => {
+      console.error('Error fetching events:', error);
+    });
     
-    fetch(`http://localhost:8080/auth/user-info?email=${encodeURIComponent(email)}`)
-      .then((response) => response.json())
-      .then((data) => setUser(data)) // Set the user info to state
-      .catch((error) => console.error('Error fetching user info:', error));
-  }, []);
+ }, [email]);
+
+
+ // Chart data for both income and expense
+ const data = {
+  labels: ['1 Month', '6 Months', '1 Year'],
+  datasets: [
+    {
+      label: 'Income',
+      data: [lastMonthIncome, last6MonthsIncome, lastYearIncome],
+      fill: false,
+      borderColor: 'rgb(75, 192, 192)',
+      backgroundColor: 'rgb(75, 192, 192)', // Bar color for income
+      tension: 0.1
+    },
+    {
+      label: 'Expense',
+      data: [lastMonthExpense, last6MonthsExpense, lastYearExpense],
+      fill: false,
+      borderColor: 'rgb(255, 99, 132)',
+      backgroundColor: 'rgb(255, 99, 132)', // Bar color for expense
+      tension: 0.1
+    }
+  ]
+};
+
+const barChartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+  },
+  scales: {
+    x: {
+      beginAtZero: true,
+      grid: {
+       display:false, // Custom color for X-axis grid lines
+      },
+    },
+    y: {
+      beginAtZero: true,
+      
+      grid: {
+        display:false, // Custom color for Y-axis grid lines
+      },
+    },
+  },
+};
+  // Add new event
+  const handleAddEvent = (event) => {
+    event.preventDefault();
+
+    if (newEvent.name && newEvent.date) {
+      const updatedEvents = [...events, { id: events.length + 1, ...newEvent }];
+      setEvents(updatedEvents);
+
+      // Reset the form
+      setNewEvent({ name: '', date: '' });
+    }
+  };
+
 
   return (
     <div>
@@ -52,22 +220,18 @@ const Dashboard = () => {
           </div>
 
           <div className="nav-links">
-          <Link to="/expense">Expenses</Link>
-          <Link to="/income">Income</Link>
-          <Link to="/report">Report</Link>
-          <Link to="/settings">Settings</Link>
+            <Link to="/expense">Expenses</Link>
+            <Link to="/income">Income</Link>
+            <Link to="/report">Report</Link>
+            <Link to="/settings">Settings</Link>
           </div>
 
           <div className="right-section">
-            <i className="bx bx-bell"></i>
-            <i className="bx bx-search"></i>
 
             <div className="profile">
               <div className="info">
-              <img src="../assets/profile.png" alt="Profile"  />
-
-
-              <div>
+              <img src={profileImage} alt="Profile" />
+                <div>
                   <a href="#">{user ? user.username : 'Loading...'}</a>
                 </div>
               </div>
@@ -79,32 +243,41 @@ const Dashboard = () => {
         <div className="status">
           <div className="header">
             <h4 id="big">Account Overview</h4>
-            <h4 id="small">Weekly Expenses</h4>
+            <h4 id="big" className="right">Weekly Expenses</h4>
           </div>
+          
 
           <div className="items-list">
             <div className="item">
-              <div className="info">
-                <div>
-                  <h5>Total Income This Month</h5>
+              <Link to='/total-income'>
+                <div className="info">
+                  <div>
+                    <h5>Total Income This Month</h5>
+                  </div>
+                  <i className="bx bx-money"></i>
                 </div>
-                <i className="bx bx-money"></i>
-              </div>
-              <div className="progress">
-                <div className="bar"></div>
-              </div>
+                <div className="progress">
+                <div className="bar"  ></div>
+                  {/* Display dynamic total income */}
+                  <div className="dynamic-income"></div>
+                </div>
+              </Link>
             </div>
+
             <div className="item">
-              <div className="info">
-                <div>
-                  <h5>Total Expenses This Month</h5>
+              <Link to='/total-expenses'>
+                <div className="info">
+                  <div>
+                    <h5>Total Expenses This Month</h5>
+                  </div>
+                  <i className="bx bx-money-withdraw"></i>
                 </div>
-                <i className="bx bx-money-withdraw"></i>
-              </div>
-              <div className="progress">
-                <div className="bar"></div>
-              </div>
+                <div className="progress">
+                  <div className="bar"></div>
+                </div>
+              </Link>
             </div>
+
             <div className="item">
               <div className="info">
                 <div>
@@ -116,43 +289,65 @@ const Dashboard = () => {
                 <div className="bar"></div>
               </div>
             </div>
+
             <div className="item">
-              <Line data={data} />
+              <div className="info">
+                <i className="bx bx-bar-chart"></i>
+              </div>
+              <div className="chart">
+                <Bar data={barChartData} options={barChartOptions} />
+              </div>
             </div>
+
           </div>
         </div>
       </div>
 
       <div className="bottom-container">
         <div className="prog-status">
+          
+          
           <div className="header">
-            <h4>Category</h4>
-            <div className="category">
-              <i className="bx bx-plus"></i>
-              <h4>Add Category</h4>
-            </div>
-            <div className="tabs">
-              <a href="#" className="active">
-                1Y
-              </a>
-              <a href="#">6M</a>
-              <a href="#">3M</a>
-            </div>
+            <div className="tabs" role="tablist">
+            {['1Y', '6M', '1M'].map((tab) => (
+            <button
+              key={tab}
+              className={`tab ${activeTab === tab ? 'active' : ''}`}
+              role="tab"
+              aria-selected={activeTab === tab}
+              onClick={() => setActiveTab(tab)}
+            >
+          {tab}
+        </button>
+      ))}
+    </div>
           </div>
 
           <div className="details">
             <div className="item">
-              <h2>$1,10,000</h2>
-              <p>Food & Drinks</p>
+              <h2>Expense</h2>
+              <p>Chart</p>
             </div>
             <div className="separator"></div>
             <div className="item">
-              <h2>$65,000</h2>
-              <p>Shopping</p>
+              <h2>Income</h2>
+              <p>Chart</p>
             </div>
           </div>
-
-          <canvas className="prog-chart"></canvas>
+           
+          <div className="chart-container">
+            <h2>Income and Expense Summary</h2>
+            {lastMonthIncome !== null && last6MonthsIncome !== null && lastYearIncome !== null && 
+            lastMonthExpense !== null && last6MonthsExpense !== null && lastYearExpense !== null ? (
+              <Bar data={data} options={barChartOptions} />
+            ) : (
+                <div className="loading-message">
+                    <p>Loading data...</p>
+                    <div className="loading-spinner"></div>
+                </div>
+            )}
+        </div>
+            
         </div>
 
         <div className="popular">
@@ -176,99 +371,59 @@ const Dashboard = () => {
               SAVE<i className="bx bx-right-arrow-alt"></i>
             </button>
           </div>
+          
         </div>
 
         <div className="upcoming">
           <div className="header">
             <h4>Schedule Expenses</h4>
             <a href="#">
-              {date.toLocaleString('default', { month: 'long' })} <i className="bx bx-chevron-down"></i>
+              {date.toLocaleString('default', { month: 'long' })} {date.getFullYear()}
             </a>
           </div>
 
-          {/* Calendar Component */}
-          <div className="calendar-container">
-        <div className="calendar-header">
-          <h4>Calendar</h4>
-          <div className="month-selector">
-            <i className="bx bx-chevron-left"></i>
-            <span>January</span>
-            <i className="bx bx-chevron-right"></i>
+          <div className="tabs">
+            <Calendar
+              onChange={setDate}
+              value={date}
+              next2Label={null}
+              prev2Label={null}
+            />
           </div>
-        </div>
-        <div className="days-of-week">
-          <div>Mon</div>
-          <div>Tue</div>
-          <div>Wed</div>
-          <div>Thu</div>
-          <div>Fri</div>
-          <div>Sat</div>
-          <div>Sun</div>
-        </div>
-        <div className="calendar-days">
-          <div className="item disabled">1</div>
-          <div className="item active">2</div>
-          <div className="item">3</div>
-          <div className="item">4</div>
-          <div className="item">5</div>
-          <div className="item">6</div>
-          <div className="item">7</div>
-          {/* Add other days here */}
-        </div>
-      </div>
-<br></br>
+
           <div className="events">
-            <div className="item">
-              <div>
-                <i className="bx bx-time"></i>
-                <div className="event-info">
-                  <a href="#">Car EMI</a>
-                  <p>10:00-11:30</p>
-                </div>
-              </div>
-              <i className="bx bx-dots-horizontal-rounded"></i>
-            </div>
-            <div className="item">
-              <div>
-                <i className="bx bx-time"></i>
-                <div className="event-info">
-                  <a href="#">Electricity Bills</a>
-                  <p>13:30-15:00</p>
-                </div>
-              </div>
-              <i className="bx bx-dots-horizontal-rounded"></i>
-            </div>
-            <div className="item">
-              <div>
-                <i className="bx bx-time"></i>
-                <div className="event-info">
-                  <a href="#">House Rents</a>
-                  <p>11:30-13:00</p>
-                </div>
-              </div>
-              <i className="bx bx-dots-horizontal-rounded"></i>
-            </div>
-            <div className="item">
-              <div>
-                <i className="bx bx-time"></i>
-                <div className="event-info">
-                  <a href="#">Phone Recharge</a>
-                  <p>10:00-11:30</p>
-                </div>
-              </div>
-              <i className="bx bx-dots-horizontal-rounded"></i>
-            </div>
-            <div className="item">
-              <div>
-                <i className="bx bx-time"></i>
-                <div className="event-info">
-                  <a href="#">Add Expenses</a>
-                  <p>Add time</p>
-                </div>
-              </div>
-              <i className="bx bx-dots-horizontal-rounded"></i>
+            <div className="event-list">
+              <h3>Upcoming Events</h3>
+              {events.length > 0 ? (
+                events.map((event) => (
+                  <div key={event.id}>
+                    <div className="event">
+                      <p>{event.name}</p>
+                      <p>{event.date}</p>
+                    </div>
+                    <div className="line"></div>
+                  </div>
+                ))
+              ) : (
+                <p>No upcoming events</p>
+              )}
             </div>
           </div>
+          <form onSubmit={handleAddEvent}>
+            <input
+              type="text"
+              value={newEvent.name}
+              onChange={(e) => setNewEvent({ ...newEvent, name: e.target.value })}
+              placeholder="Event Name"
+            />
+            <input
+              type="date"
+              value={newEvent.date}
+              onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+              placeholder="Event Date"
+            />
+            <button type="submit">Add Event</button>
+          </form>
         </div>
       </div>
     </div>

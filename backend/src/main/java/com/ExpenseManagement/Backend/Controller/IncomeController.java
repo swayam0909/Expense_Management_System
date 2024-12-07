@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -36,5 +37,61 @@ public class IncomeController {
     public ResponseEntity<?> getTotalIncome(@RequestParam String email) {
         double total = incomeService.getTotalIncome(email);
         return ResponseEntity.ok(Map.of("totalIncome", total));
+    }
+
+    // Get Incomes for a specific date range
+    @GetMapping("/range")
+    public ResponseEntity<List<Income>> getIncomesByDateRange(
+            @RequestParam String email,
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        // Parse the date strings into LocalDateTime
+        LocalDateTime start = LocalDateTime.parse(startDate);
+        LocalDateTime end = LocalDateTime.parse(endDate);
+
+        List<Income> incomes = incomeService.getIncomesByDateRange(email, start, end);
+        return ResponseEntity.ok(incomes);
+    }
+
+    // Get Incomes for the last 1 month
+    @GetMapping("/lastMonth")
+    public ResponseEntity<List<Income>> getIncomesLastMonth(@RequestParam String email) {
+        List<Income> incomes = incomeService.getIncomesLastMonth(email);
+        return ResponseEntity.ok(incomes);
+    }
+
+    // Get Incomes for the last 6 months
+    @GetMapping("/last6Months")
+    public ResponseEntity<List<Income>> getIncomesLast6Months(@RequestParam String email) {
+        List<Income> incomes = incomeService.getIncomesLast6Months(email);
+        return ResponseEntity.ok(incomes);
+    }
+
+    // Get Incomes for the last 1 year
+    @GetMapping("/lastYear")
+    public ResponseEntity<List<Income>> getIncomesLastYear(@RequestParam String email) {
+        List<Income> incomes = incomeService.getIncomesLastYear(email);
+        return ResponseEntity.ok(incomes);
+    }
+
+    // Get Total Income for last 1 month
+    @GetMapping("/1M")
+    public ResponseEntity<?> getTotalIncomeLastMonth(@RequestParam String email) {
+        double total = incomeService.getTotalIncomeLast1M(email);
+        return ResponseEntity.ok(Map.of("totalIncomeLast1M", total));
+    }
+
+    // Get Total Income for last 6 months
+    @GetMapping("/6M")
+    public ResponseEntity<?> getTotalIncomeLast6Months(@RequestParam String email) {
+        double total = incomeService.getTotalIncomeLast6M(email);
+        return ResponseEntity.ok(Map.of("totalIncomeLast6M", total));
+    }
+
+    // Get Total Income for last 1 year
+    @GetMapping("/1Y")
+    public ResponseEntity<?> getTotalIncomeLastYear(@RequestParam String email) {
+        double total = incomeService.getTotalIncomeLast1Y(email);
+        return ResponseEntity.ok(Map.of("totalIncomeLast1Y", total));
     }
 }

@@ -1,20 +1,79 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
-import '../styles/ExpenseForm.css';  // Import the CSS file for styling
-import { addExpense } from '../apiService';  // Assuming you have an apiService to handle API calls
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/ExpenseForm.css';
 
-const ExpenseForm = ({ userEmail, expenseHistory = [] }) => {  // Provide a fallback for expenseHistory
-  const navigate = useNavigate();  // Create a navigate function to navigate programmatically
+const ExpenseForm = () => {
+  const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState('');
   const [expense, setExpense] = useState({
     category: '',
     amount: '',
     date: '',
     description: '',
   });
-  const [successMessage, setSuccessMessage] = useState('');  // State for success message
-  const [historyVisible, setHistoryVisible] = useState(false);  // State for showing expense history
+  const [successMessage, setSuccessMessage] = useState('');
+  const [expenseHistory, setExpenseHistory] = useState([]);
+  const [totalExpense, setTotalExpense] = useState(0);
 
-  // Handle form input changes
+  // Automatically fetch the email from local storage or backend
+  useEffect(() => {
+    const fetchEmail = () => {
+      // Fetch email from local storage or cookies as an example
+      const savedEmail = localStorage.getItem('userEmail');
+      if (savedEmail) {
+        setUserEmail(savedEmail);
+      } else {
+        // Default to an empty string if no email is found
+        setUserEmail('');
+      }
+    };
+
+    fetchEmail();
+  }, []);
+
+  const fetchExpenses = async () => {
+    if (!userEmail) {
+      console.error('User email is required to fetch expenses.');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:8080/expense/all?email=${userEmail}`);
+      if (response.ok) {
+        const data = await response.json();
+        setExpenseHistory(data);
+      } else {
+        console.error('Failed to fetch expenses');
+      }
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+    }
+  };
+
+  const fetchTotalExpense = async () => {
+    if (!userEmail) {
+      console.error('User email is required to fetch total expense.');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:8080/expense/total?email=${userEmail}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTotalExpense(data.totalExpense);
+      } else {
+        console.error('Failed to fetch total expense');
+      }
+    } catch (error) {
+      console.error('Error fetching total expense:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (userEmail) {
+      fetchExpenses();
+      fetchTotalExpense();
+    }
+  }, [userEmail]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setExpense({
@@ -23,55 +82,82 @@ const ExpenseForm = ({ userEmail, expenseHistory = [] }) => {  // Provide a fall
     });
   };
 
-  // Handle form submission
+  const handleEmailChange = (e) => {
+    setUserEmail(e.target.value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Create the expense object, including the email
-    const newExpense = { 
-      ...expense, 
-      email: userEmail,  // Attach the email to the expense
-      date: expense.date ? new Date(expense.date).toISOString() : new Date().toISOString(),  // Ensure date is in ISO format
+    if (!userEmail) {
+      setSuccessMessage('User email is required to add an expense.');
+      return;
+    }
+
+    const newExpense = {
+      ...expense,
+      email: userEmail,
+      date: expense.date ? new Date(expense.date).toISOString() : new Date().toISOString(),
     };
 
     try {
-      await addExpense(newExpense);  // API call to save the expense
-      console.log('Expense Created:', newExpense);
-      
-      // Display success message
-      setSuccessMessage('Expense added successfully!');
-      
-      // Clear the form after submission
-      setExpense({
-        category: '',
-        amount: '',
-        date: '',
-        description: '',
+      const response = await fetch('http://localhost:8080/expense/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newExpense),
       });
-      
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
 
+      if (response.ok) {
+        setSuccessMessage('Expense added successfully!');
+        setExpense({
+          category: '',
+          amount: '',
+          date: '',
+          description: '',
+        });
+
+        // Refresh data
+        fetchExpenses();
+        fetchTotalExpense();
+
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 3000);
+      } else {
+        setSuccessMessage('Error creating expense. Please try again.');
+      }
     } catch (error) {
-      console.error('Error creating expense:', error);
+      console.error('Error submitting expense:', error);
       setSuccessMessage('Error creating expense. Please try again.');
     }
   };
 
-  // Handle back to dashboard functionality
   const handleBackToDashboard = () => {
-    navigate('/dashboard');  // Navigate to the '/dashboard' route
+    navigate('/dashboard');
   };
 
   return (
     <div className="expense-form-wrapper">
       <div className="expense-form-container">
         <h2>Create Expense</h2>
-
-        {/* Success Message */}
         {successMessage && <div className="success-message">{successMessage}</div>}
+
+        {/* Email Input */}
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={userEmail}
+            onChange={handleEmailChange}
+            readOnly
+            placeholder="Enter your email"
+            required
+          />
+        </div>
 
         <form onSubmit={handleSubmit} className="expense-form">
           <div className="form-group">
@@ -134,31 +220,24 @@ const ExpenseForm = ({ userEmail, expenseHistory = [] }) => {  // Provide a fall
         </form>
       </div>
 
-      {/* Expense History Section */}
       <div className="history-container">
-        <h2 onClick={() => setHistoryVisible(!historyVisible)} className="history-header">
-          {historyVisible ? 'Hide Expense History' : 'Show Expense History'}
-        </h2>
+        <h3>Total Expense: ₹{totalExpense}</h3>
 
-        {historyVisible && (
-          <div className="expense-history">
-            {expenseHistory.length === 0 ? (
-              <p>No expense records found.</p>
-            ) : (
-              expenseHistory.map((item, index) => (
-                <div key={index} className="expense-item">
-                  <p><strong>Category:</strong> {item.category}</p>
-                  <p><strong>Amount:</strong> ${item.amount}</p>
-                  <p><strong>Description:</strong> {item.description}</p>
-                  <p><strong>Date:</strong> {new Date(item.date).toLocaleString()}</p>
-                </div>
-              ))
-            )}
-          </div>
+        <h2>Expense History</h2>
+        {expenseHistory.length === 0 ? (
+          <p>No expense records found.</p>
+        ) : (
+          expenseHistory.map((item, index) => (
+            <div key={index} className="expense-item">
+              <p><strong>Category:</strong> {item.category}</p>
+              <p><strong>Amount:</strong> ₹{item.amount}</p>
+              <p><strong>Description:</strong> {item.description}</p>
+              <p><strong>Date:</strong> {new Date(item.date).toLocaleString()}</p>
+            </div>
+          ))
         )}
       </div>
 
-      {/* Back to Dashboard Button */}
       <div className="back-button-container">
         <button onClick={handleBackToDashboard} className="back-btn">Back to Dashboard</button>
       </div>
