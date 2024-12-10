@@ -26,7 +26,7 @@ const ResetPassword = () => {
     }
 
     // Call API to reset the password
-    fetch('auth/reset-password', {
+    fetch('http://localhost:8080/auth/reset-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ const ResetPassword = () => {
       .then((response) => {
         if (response.ok) {
           alert('Password reset successfully!');
-          navigate('/login'); // Redirect to login page
+          navigate('/'); // Redirect to login page
         } else {
           return response.json().then((data) => {
             setError(data.message || 'Failed to reset password');

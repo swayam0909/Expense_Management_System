@@ -69,7 +69,7 @@ public class UserController {
             userRepository.save(user);
 
             // Create the password reset link
-            String resetLink = "http://localhost:8080/reset-password?token=" + resetToken;
+            String resetLink = "http://localhost:3000/reset-password?token=" + resetToken;
 
             // Create the email body (HTML format)
             String emailBody = "<html><body>"
@@ -143,8 +143,6 @@ public class UserController {
 
         return ResponseEntity.ok("Password reset successfully.");
     }
-
-
 
     // Fetch User Details API
     @GetMapping("/user-info")
