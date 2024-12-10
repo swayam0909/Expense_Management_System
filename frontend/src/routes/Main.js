@@ -5,6 +5,7 @@ import Dashboard from '../components/Dashboard';
 import ForgotPassword from '../components/forgot-password';
 import Expense from '../components/Expense';
 import Income from '../components/Income';
+import SettingsPage from '../components/SettingsPage.js';
 import Report from '../components/Report';
 import TotalExpenses from '../components/TotalExpenses.js';
 import TotalIncome from '../components/TotalIncome.js';
@@ -21,6 +22,7 @@ const Main = () => {
           <Route path="/total-income" element={<TotalIncome />} />
           <Route path="/total-expenses" element={<TotalExpenses />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path='/settings' element={<SettingsPage/>}/>
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} /> {/* New route for Reset Password */}
           <Route path="/expense" element={<Expense />} />

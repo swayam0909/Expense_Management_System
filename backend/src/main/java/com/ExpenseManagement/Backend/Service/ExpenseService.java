@@ -1,6 +1,7 @@
 package com.ExpenseManagement.Backend.Service;
 
 import com.ExpenseManagement.Backend.Model.Expense;
+import com.ExpenseManagement.Backend.Model.Goal;
 import com.ExpenseManagement.Backend.Repository.ExpenseRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,25 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepo expenseRepo;
 
-    // Add an Expense
+    @Autowired
+    private GoalService goalService;
+
+    // Add an Expense and update goal progress
     public void addExpense(Expense expense) {
         expenseRepo.save(expense);  // Save the expense
+
+//        // Update goal progress
+//        List<Goal> userGoals = goalService.getAllGoals(email);
+//        for (Goal goal : userGoals) {
+//            // Check if the expense amount can contribute to the goal
+//            if (expense.getAmount() <= goal.getTargetAmount() - goal.getSavedAmount()) {
+//                goal.setSavedAmount(goal.getSavedAmount() + expense.getAmount());
+//                goalService.updateGoal(goal);  // Update the goal saved amount
+//            }
+//        }
+//
+//        // Check for any achieved goals
+//        goalService.checkGoalAchievement(email);
     }
 
     // Get all Expenses by email
@@ -88,8 +105,8 @@ public class ExpenseService {
     public Map<String, Double> getWeeklyExpenses(String email) {
         // Get start and end dates for the current week
         LocalDateTime today = LocalDateTime.now();
-        LocalDateTime startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1); // Monday
-        LocalDateTime endOfWeek = startOfWeek.plusDays(6); // Sunday
+        LocalDateTime startOfWeek = today.with(java.time.DayOfWeek.MONDAY).withHour(0).withMinute(0).withSecond(0); // Monday
+        LocalDateTime endOfWeek = startOfWeek.plusDays(6).withHour(23).withMinute(59).withSecond(59); // Sunday
 
         // Fetch expenses for the week
         List<Expense> weeklyExpenses = expenseRepo.findByEmailAndDateBetween(email, startOfWeek, endOfWeek);
@@ -108,6 +125,4 @@ public class ExpenseService {
 
         return dailyExpenses;
     }
-
-
 }

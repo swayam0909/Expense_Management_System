@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/dashboard.css';
 import { Link } from 'react-router-dom';
-import { Line } from 'react-chartjs-2';
 import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
 import '../styles/calendar.css';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement,BarElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, BarElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import '../styles/Chart.css'
+import '../styles/Chart.css';
+import GoalForm from './GoalForm';
+import GoalList from './GoalList';
+import { Button } from '@mui/material';
 import profileImage from '../assets/profile.png';
-ChartJS.register(CategoryScale, LinearScale, PointElement, BarElement,LineElement, Title, Tooltip, Legend);
 
-const Dashboard = ({email}) => {
+ChartJS.register(CategoryScale, LinearScale, PointElement, BarElement, LineElement, Title, Tooltip, Legend);
+
+const Dashboard = ({ email }) => {
   const [activeTab, setActiveTab] = useState('1Y'); // Default to '1Y'
   const [date, setDate] = useState(new Date());
   const [user, setUser] = useState(null);
@@ -23,8 +26,6 @@ const Dashboard = ({email}) => {
   const [loading, setLoading] = useState(true); // To handle loading state
   const [error, setError] = useState(null); // To handle errors
   const [newEvent, setNewEvent] = useState({ name: '', date: '' }); // State for new event form
-
-
   const [monthlyIncomeData, setMonthlyIncomeData] = useState([]);
   const [monthlyExpenseData, setMonthlyExpenseData] = useState([]);
   const [lastMonthIncome, setLastMonthIncome] = useState(null);
@@ -33,21 +34,27 @@ const Dashboard = ({email}) => {
   const [lastMonthExpense, setLastMonthExpense] = useState(null);
   const [last6MonthsExpense, setLast6MonthsExpense] = useState(null);
   const [lastYearExpense, setLastYearExpense] = useState(null);
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [weeklyData, setWeeklyData] = useState({});
+  const [goals, setGoals] = useState([]);
+  const [openGoalForm, setOpenGoalForm] = useState(false);
+
+  const toggleGoalForm = () => {
+    setOpenGoalForm(!openGoalForm);
+  };
 
   const barChartData = {
     labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'], // Weekdays (abbreviated)
     datasets: [
       {
-        label:'Expense',
+        label: 'Expense',
         data: [
-          weeklyData.MONDAY || 0, 
-          weeklyData.TUESDAY || 0, 
-          weeklyData.WEDNESDAY || 0, 
-          weeklyData.THURSDAY || 0, 
-          weeklyData.FRIDAY || 0, 
-          weeklyData.SATURDAY || 0, 
+          weeklyData.MONDAY || 0,
+          weeklyData.TUESDAY || 0,
+          weeklyData.WEDNESDAY || 0,
+          weeklyData.THURSDAY || 0,
+          weeklyData.FRIDAY || 0,
+          weeklyData.SATURDAY || 0,
           weeklyData.SUNDAY || 0,
         ],
         backgroundColor: 'rgba(2, 90, 132, 0.6)',
@@ -55,147 +62,188 @@ const Dashboard = ({email}) => {
     ],
   };
 
+  // For logout
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleLogout = () => {
+    console.log("Logout clicked!");
+    // Add your logout logic here
+  };
 
   useEffect(() => {
     const email = localStorage.getItem('userEmail');
 
+    // Fetch the weekly expense data from the backend
+    axios
+      .get(`http://localhost:8080/expense/weekly?email=${email}`)
+      .then((response) => {
+        setWeeklyData(response.data); // Set weekly expenses data
+        setLoading(false); // Stop loading once data is fetched
+      })
+      .catch((error) => {
+        console.error("Error fetching weekly expenses", error);
+        setLoading(false);
+      });
 
-      // Fetch the weekly expense data from the backend
-    axios.get(`http://localhost:8080/expense/weekly?email=${email}`)
-    .then((response) => {
-      setWeeklyData(response.data); // Set weekly expenses data
-      setLoading(false); // Stop loading once data is fetched
-    })
-    .catch((error) => {
-      console.error("Error fetching weekly expenses", error);
-      setLoading(false);
-    });
+    // // Goal
+    // axios
+    //   .get(`http://localhost:8080/goals/all/${email}`)
+    //   .then((response) => {
+    //     setGoals(response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error fetching goals", error);
+    //   });
+
+    // Fetch income data
+    axios
+      .get(`http://localhost:8080/income/1M?email=${email}`)
+      .then((response) => setLastMonthIncome(response.data.totalIncomeLast1M))
+      .catch((error) => console.error('Error fetching total income for last month:', error));
+
+    axios
+      .get(`http://localhost:8080/income/6M?email=${email}`)
+      .then((response) => setLast6MonthsIncome(response.data.totalIncomeLast6M))
+      .catch((error) => console.error('Error fetching total income for last 6 months:', error));
+
+    axios
+      .get(`http://localhost:8080/income/1Y?email=${email}`)
+      .then((response) => setLastYearIncome(response.data.totalIncomeLast1Y))
+      .catch((error) => console.error('Error fetching total income for last year:', error));
+
+    // Fetch expense data
+    axios
+      .get(`http://localhost:8080/expense/1M?email=${email}`)
+      .then((response) => setLastMonthExpense(response.data.totalExpenseLast1M))
+      .catch((error) => console.error('Error fetching total expense for last month:', error));
+
+    axios
+      .get(`http://localhost:8080/expense/6M?email=${email}`)
+      .then((response) => setLast6MonthsExpense(response.data.totalExpenseLast6M))
+      .catch((error) => console.error('Error fetching total expense for last 6 months:', error));
+
+    axios
+      .get(`http://localhost:8080/expense/1Y?email=${email}`)
+      .then((response) => setLastYearExpense(response.data.totalExpenseLast1Y))
+      .catch((error) => console.error('Error fetching total expense for last year:', error));
+
+    // // For goals
+    // fetch(`http://localhost:8080/goals/all/${email}`)
+    //   .then((response) => response.json())
+    //   .then((data) => setGoals(data));
+
+    // For username accessing
+    fetch(`http://localhost:8080/auth/user-info?email=${encodeURIComponent(email)}`)
+      .then((response) => response.json())
+      .then((data) => setUser(data)) // Set the user info to state
+      .catch((error) => console.error('Error fetching user info:', error));
+
+    // Fetch income and expenses in parallel
+    Promise.allSettled([
+      fetch(`http://localhost:8080/income/total?email=${encodeURIComponent(email)}`),
+      fetch(`http://localhost:8080/expense/total?email=${encodeURIComponent(email)}`),
+    ])
+      .then((results) => {
+        // Handle income response
+        const incomeResult = results[0];
+        if (incomeResult.status === 'fulfilled' && incomeResult.value.ok) {
+          incomeResult.value.json().then((data) => setIncomeData(data));
+        } else {
+          console.error('Error fetching income data:', incomeResult.reason || 'Request failed');
+        }
+
+        // Handle expense response
+        const expenseResult = results[1];
+        if (expenseResult.status === 'fulfilled' && expenseResult.value.ok) {
+          expenseResult.value.json().then((data) => setExpenseData(data));
+        } else {
+          console.error('Error fetching expense data:', expenseResult.reason || 'Request failed');
+        }
+      })
+      .catch((error) => {
+        console.error('Unexpected error:', error);
+      });
+
+    // Fetch events separately
+    fetch('http://localhost:8080/api/events')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch events');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setEvents(Array.isArray(data) ? data : []); // Ensure data is an array
+      })
+      .catch((error) => {
+        console.error('Error fetching events:', error);
+      });
+  }, [email]);
+
+  // Calculate progress for each goal
+  // const calculateGoalProgress = (goal) => {
+  //   return ((goal.savedAmount / goal.targetAmount) * 100).toFixed(2);
+  // };
+
+  // // Handle delete goal
+  // const handleDeleteGoal = (goalId) => {
+  //   setEditingGoal(goalId);
+  // };
+
+  // // Handle update goal
+  // const handleUpdateGoal = (goal) => {
+  //   setEditingGoal(goal);
+  // };
 
 
-      // Fetch income data
-      axios.get(`http://localhost:8080/income/1M?email=${email}`)
-          .then(response => setLastMonthIncome(response.data.totalIncomeLast1M))
-          .catch(error => console.error('Error fetching total income for last month:', error));
+  // Chart data for both income and expense
+  const data = {
+    labels: ['1 Month', '6 Months', '1 Year'],
+    datasets: [
+      {
+        label: 'Income',
+        data: [lastMonthIncome, last6MonthsIncome, lastYearIncome],
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgb(75, 192, 192)', // Bar color for income
+        tension: 0.1,
+      },
+      {
+        label: 'Expense',
+        data: [lastMonthExpense, last6MonthsExpense, lastYearExpense],
+        fill: false,
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgb(255, 99, 132)', // Bar color for expense
+        tension: 0.1,
+      },
+    ],
+  };
 
-      axios.get(`http://localhost:8080/income/6M?email=${email}`)
-          .then(response => setLast6MonthsIncome(response.data.totalIncomeLast6M))
-          .catch(error => console.error('Error fetching total income for last 6 months:', error));
-
-      axios.get(`http://localhost:8080/income/1Y?email=${email}`)
-          .then(response => setLastYearIncome(response.data.totalIncomeLast1Y))
-          .catch(error => console.error('Error fetching total income for last year:', error));
-
-      // Fetch expense data
-      axios.get(`http://localhost:8080/expense/1M?email=${email}`)
-          .then(response => setLastMonthExpense(response.data.totalExpenseLast1M))
-          .catch(error => console.error('Error fetching total expense for last month:', error));
-
-      axios.get(`http://localhost:8080/expense/6M?email=${email}`)
-          .then(response => setLast6MonthsExpense(response.data.totalExpenseLast6M))
-          .catch(error => console.error('Error fetching total expense for last 6 months:', error));
-
-      axios.get(`http://localhost:8080/expense/1Y?email=${email}`)
-          .then(response => setLastYearExpense(response.data.totalExpenseLast1Y))
-          .catch(error => console.error('Error fetching total expense for last year:', error))
-
-
-
-    //for username accessing
-   fetch(`http://localhost:8080/auth/user-info?email=${encodeURIComponent(email)}`)
-     .then((response) => response.json())
-     .then((data) => setUser(data)) // Set the user info to state
-     .catch((error) => console.error('Error fetching user info:', error));
-
-  // Fetch income and expenses in parallel
-  Promise.allSettled([
-    fetch(`http://localhost:8080/income/total?email=${encodeURIComponent(email)}`),
-    fetch(`http://localhost:8080/expense/total?email=${encodeURIComponent(email)}`),
-  ])
-    .then((results) => {
-      // Handle income response
-      const incomeResult = results[0];
-      if (incomeResult.status === 'fulfilled' && incomeResult.value.ok) {
-        incomeResult.value.json().then((data) => setIncomeData(data));
-      } else {
-        console.error('Error fetching income data:', incomeResult.reason || 'Request failed');
-      }
-
-      // Handle expense response
-      const expenseResult = results[1];
-      if (expenseResult.status === 'fulfilled' && expenseResult.value.ok) {
-        expenseResult.value.json().then((data) => setExpenseData(data));
-      } else {
-        console.error('Error fetching expense data:', expenseResult.reason || 'Request failed');
-      }
-    })
-    .catch((error) => {
-      console.error('Unexpected error:', error);
-    });
-
-  // Fetch events separately
-  fetch('http://localhost:8080/api/events')
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      setEvents(Array.isArray(data) ? data : []); // Ensure data is an array
-    })
-    .catch((error) => {
-      console.error('Error fetching events:', error);
-    });
-    
- }, [email]);
-
-
- // Chart data for both income and expense
- const data = {
-  labels: ['1 Month', '6 Months', '1 Year'],
-  datasets: [
-    {
-      label: 'Income',
-      data: [lastMonthIncome, last6MonthsIncome, lastYearIncome],
-      fill: false,
-      borderColor: 'rgb(75, 192, 192)',
-      backgroundColor: 'rgb(75, 192, 192)', // Bar color for income
-      tension: 0.1
-    },
-    {
-      label: 'Expense',
-      data: [lastMonthExpense, last6MonthsExpense, lastYearExpense],
-      fill: false,
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgb(255, 99, 132)', // Bar color for expense
-      tension: 0.1
-    }
-  ]
-};
-
-const barChartOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      display: false,
-    },
-  },
-  scales: {
-    x: {
-      beginAtZero: true,
-      grid: {
-       display:false, // Custom color for X-axis grid lines
+  const barChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
       },
     },
-    y: {
-      beginAtZero: true,
-      
-      grid: {
-        display:false, // Custom color for Y-axis grid lines
+    scales: {
+      x: {
+        beginAtZero: true,
+        grid: {
+          display: false, // Custom color for X-axis grid lines
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          display: false, // Custom color for Y-axis grid lines
+        },
       },
     },
-  },
-};
+  };
+
   // Add new event
   const handleAddEvent = (event) => {
     event.preventDefault();
@@ -208,8 +256,6 @@ const barChartOptions = {
       setNewEvent({ name: '', date: '' });
     }
   };
-
-
   return (
     <div>
       <div className="top-container">
@@ -229,13 +275,19 @@ const barChartOptions = {
           <div className="right-section">
 
             <div className="profile">
-              <div className="info">
-              <img src={profileImage} alt="Profile" />
-                <div>
+              <div className="info" onClick={toggleDropdown} style={{cursor:"pointer"}}>
+              <img src={profileImage} alt="Profile" 
+              style={{width:"40px",height:"40px",borderRadius:"50%"}}/>
+                <div className='log'>
                   <a href="#">{user ? user.username : 'Loading...'}</a>
                 </div>
               </div>
               <i className="bx bx-chevron-down"></i>
+              {isDropdownOpen &&(
+                <div className="drowdown-menu">
+                  <button onClick={handleLogout}>Logout</button>
+                  </div>
+              )}
             </div>
           </div>
         </div>
@@ -306,23 +358,6 @@ const barChartOptions = {
       <div className="bottom-container">
         <div className="prog-status">
           
-          
-          <div className="header">
-            <div className="tabs" role="tablist">
-            {['1Y', '6M', '1M'].map((tab) => (
-            <button
-              key={tab}
-              className={`tab ${activeTab === tab ? 'active' : ''}`}
-              role="tab"
-              aria-selected={activeTab === tab}
-              onClick={() => setActiveTab(tab)}
-            >
-          {tab}
-        </button>
-      ))}
-    </div>
-          </div>
-
           <div className="details">
             <div className="item">
               <h2>Expense</h2>
@@ -349,31 +384,33 @@ const barChartOptions = {
         </div>
             
         </div>
+      <div className='popular'>
+        <div
+            style={{
+            height: '800px',
+             // or use 'max-height: 400px;' for flexibility
+            overflowY: 'auto', // enables scrolling if the content exceeds the height
+          }}
+        >
+      <Button
+        variant="contained"
+        sx={{
+          backgroundColor: '#512da8',
+          '&:hover': {
+            backgroundColor: '#031224',
+          },
+        }} onClick={toggleGoalForm}
+      >
+        Add New Goal
+      </Button>
+      {openGoalForm && <GoalForm closeForm={toggleGoalForm} />}
+        <div className="goal-progress-conatiner">
+        
+        <GoalList email={email} />
 
-        <div className="popular">
-          <div className="header">
-            <h4>Goal</h4>
-            <a href="#"># Target</a>
-          </div>
-
-          <div className="Goal">
-            <i className="bx bx-target-lock"></i>
-            <b>Achieve Your Goal</b>
-          </div>
-          <p>Set the goal and SAVE!</p>
-          <div className="listen">
-            <div className="author">
-              <div>
-                <a href="#">Smart Refrigerator</a>
-              </div>
-            </div>
-            <button>
-              SAVE<i className="bx bx-right-arrow-alt"></i>
-            </button>
-          </div>
-          
+         </div> 
         </div>
-
+      </div>
         <div className="upcoming">
           <div className="header">
             <h4>Schedule Expenses</h4>
