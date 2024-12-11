@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/style.css';
+import '../styles/ForgotPassword.css';
 
 const App = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -10,22 +10,24 @@ const App = () => {
     password: '',
     confirmPassword: '',
   });
-  const [isForgotPassword, setIsForgotPassword] = useState(false); // New state for Forgot Password
-  const [forgotEmail, setForgotEmail] = useState(""); // Email input for Forgot Password
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [message, setMessage] = useState({ type: '', text: '' }); // Feedback message
 
   const navigate = useNavigate();
 
   const handleToggle = () => {
     setIsSignUp((prev) => !prev);
+    setMessage({ type: '', text: '' }); // Clear feedback messages on toggle
   };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    setMessage({ type: '', text: '' });
 
-    // Validate email format
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!emailPattern.test(forgotEmail)) {
-      alert("Please enter a valid email address.");
+      setMessage({ type: 'error', text: 'Please enter a valid email address.' });
       return;
     }
 
@@ -37,14 +39,14 @@ const App = () => {
       });
 
       if (response.ok) {
-        alert('Password reset link sent to your email.');
-        setIsForgotPassword(false); // Return to login screen
+        setMessage({ type: 'success', text: 'Password reset link sent to your email.' });
+        setIsForgotPassword(false);
       } else {
-        alert('Error: ' + (await response.text()));
+        const errorText = await response.text();
+        setMessage({ type: 'error', text: `Error: ${errorText}` });
       }
     } catch (error) {
-      console.error('Error during password reset:', error);
-      alert('Something went wrong!');
+      setMessage({ type: 'error', text: 'Something went wrong. Please try again later.' });
     }
   };
 
@@ -55,16 +57,16 @@ const App = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage({ type: '', text: '' });
 
-    // Validate passwords if in SignUp mode
     if (isSignUp && formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setMessage({ type: 'error', text: 'Passwords do not match!' });
       return;
     }
 
     const url = isSignUp
       ? 'http://localhost:8080/auth/register'
-      : 'http://localhost:8080/auth/login'; // Use the correct backend URL
+      : 'http://localhost:8080/auth/login';
     const payload = isSignUp
       ? { username: formData.username, email: formData.email, password: formData.password }
       : { email: formData.email, password: formData.password };
@@ -79,11 +81,11 @@ const App = () => {
       if (response.ok) {
         navigate('/dashboard');
       } else {
-        alert('Error: ' + (await response.text()));
+        const errorText = await response.text();
+        setMessage({ type: 'error', text: `Error: ${errorText}` });
       }
     } catch (error) {
-      console.error('Error during submit:', error);
-      alert('Something went wrong!');
+      setMessage({ type: 'error', text: 'Something went wrong. Please try again later.' });
     }
   };
 
@@ -91,7 +93,6 @@ const App = () => {
     <div className={`container ${isSignUp ? 'active' : ''}`} id="container">
       {!isForgotPassword ? (
         <>
-          {/* Sign Up Form */}
           <div className="form-container sign-up">
             <form onSubmit={handleSubmit}>
               <h1>Create Account</h1>
@@ -128,11 +129,10 @@ const App = () => {
                 onChange={handleChange}
                 required
               />
+              {message.text && <p className={`message ${message.type}`}>{message.text}</p>}
               <button type="submit">Sign Up</button>
             </form>
           </div>
-
-          {/* Sign In Form */}
           <div className="form-container sign-in">
             <form onSubmit={handleSubmit}>
               <h1>Sign In</h1>
@@ -156,11 +156,10 @@ const App = () => {
               <a href="#" onClick={() => setIsForgotPassword(true)}>
                 Forgot Your Password?
               </a>
+              {message.text && <p className={`message ${message.type}`}>{message.text}</p>}
               <button type="submit">Sign In</button>
             </form>
           </div>
-
-          {/* Toggle Panels */}
           <div className="toggle-container">
             <div className="toggle">
               <div className="toggle-panel toggle-left">
@@ -192,6 +191,7 @@ const App = () => {
               onChange={(e) => setForgotEmail(e.target.value)}
               required
             />
+            {message.text && <p className={`message ${message.type}`}>{message.text}</p>}
             <button type="submit">Send Reset Link</button>
             <button type="button" onClick={() => setIsForgotPassword(false)}>
               Back to Login

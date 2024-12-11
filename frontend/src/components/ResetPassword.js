@@ -5,6 +5,7 @@ const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [token, setToken] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,40 +39,113 @@ const ResetPassword = () => {
     })
       .then((response) => {
         if (response.ok) {
-          alert('Password reset successfully!');
-          navigate('/'); // Redirect to login page
+          setSuccess(true);
+          setTimeout(() => navigate('/'), 3000); // Redirect to login page after 3 seconds
         } else {
           return response.json().then((data) => {
             setError(data.message || 'Failed to reset password');
           });
         }
       })
-      .catch((err) => {
+      .catch(() => {
         setError('An error occurred while resetting password');
       });
   };
 
+  const styles = {
+    container: {
+      maxWidth: '400px',
+      margin: '50px auto',
+      padding: '20px',
+      border: '1px solid #ddd',
+      borderRadius: '10px',
+      backgroundColor: '#f9f9f9',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      fontFamily: 'Arial, sans-serif',
+      textAlign: 'center',
+    },
+    heading: {
+      textAlign: 'center',
+      color: '#512da8',
+      marginBottom: '20px',
+    },
+    inputGroup: {
+      marginBottom: '15px',
+    },
+    label: {
+      display: 'block',
+      marginBottom: '5px',
+      fontWeight: 'bold',
+      color: '#333',
+    },
+    input: {
+      width: '100%',
+      padding: '10px',
+      fontSize: '16px',
+      border: '1px solid #ccc',
+      borderRadius: '5px',
+      outlineColor: '#512da8',
+    },
+    button: {
+      width: '100%',
+      padding: '10px',
+      fontSize: '16px',
+      backgroundColor: '#512da8',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      marginTop: '10px',
+    },
+    buttonHover: {
+      backgroundColor: '#3b1b98',
+    },
+    error: {
+      color: 'red',
+      marginBottom: '10px',
+    },
+    success: {
+      color: 'green',
+      marginBottom: '10px',
+    },
+  };
+
   return (
-    <div>
-      <h2>Reset Password</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div>
-        <label>New Password:</label>
-        <input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Confirm Password:</label>
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
-      <button onClick={handlePasswordReset}>Reset Password</button>
+    <div style={styles.container}>
+      <h2 style={styles.heading}>Reset Password</h2>
+      {error && <p style={styles.error}>{error}</p>}
+      {success ? (
+        <p style={styles.success}>Password reset successfully! Redirecting to login...</p>
+      ) : (
+        <>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>New Password:</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              style={styles.input}
+            />
+          </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Confirm Password:</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={styles.input}
+            />
+          </div>
+          <button
+            style={styles.button}
+            onMouseOver={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
+            onMouseOut={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
+            onClick={handlePasswordReset}
+          >
+            Reset Password
+          </button>
+        </>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/dashboard.css';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
 import '../styles/calendar.css';
@@ -36,9 +37,10 @@ const Dashboard = ({ email }) => {
   const [lastYearExpense, setLastYearExpense] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [weeklyData, setWeeklyData] = useState({});
-  const [goals, setGoals] = useState([]);
+  //const [goals, setGoals] = useState([]);
   const [openGoalForm, setOpenGoalForm] = useState(false);
 
+  const navigate = useNavigate();
   const toggleGoalForm = () => {
     setOpenGoalForm(!openGoalForm);
   };
@@ -67,10 +69,6 @@ const Dashboard = ({ email }) => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleLogout = () => {
-    console.log("Logout clicked!");
-    // Add your logout logic here
-  };
 
   useEffect(() => {
     const email = localStorage.getItem('userEmail');
@@ -86,16 +84,6 @@ const Dashboard = ({ email }) => {
         console.error("Error fetching weekly expenses", error);
         setLoading(false);
       });
-
-    // // Goal
-    // axios
-    //   .get(`http://localhost:8080/goals/all/${email}`)
-    //   .then((response) => {
-    //     setGoals(response.data);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error fetching goals", error);
-    //   });
 
     // Fetch income data
     axios
@@ -129,10 +117,6 @@ const Dashboard = ({ email }) => {
       .then((response) => setLastYearExpense(response.data.totalExpenseLast1Y))
       .catch((error) => console.error('Error fetching total expense for last year:', error));
 
-    // // For goals
-    // fetch(`http://localhost:8080/goals/all/${email}`)
-    //   .then((response) => response.json())
-    //   .then((data) => setGoals(data));
 
     // For username accessing
     fetch(`http://localhost:8080/auth/user-info?email=${encodeURIComponent(email)}`)
@@ -181,22 +165,6 @@ const Dashboard = ({ email }) => {
         console.error('Error fetching events:', error);
       });
   }, [email]);
-
-  // Calculate progress for each goal
-  // const calculateGoalProgress = (goal) => {
-  //   return ((goal.savedAmount / goal.targetAmount) * 100).toFixed(2);
-  // };
-
-  // // Handle delete goal
-  // const handleDeleteGoal = (goalId) => {
-  //   setEditingGoal(goalId);
-  // };
-
-  // // Handle update goal
-  // const handleUpdateGoal = (goal) => {
-  //   setEditingGoal(goal);
-  // };
-
 
   // Chart data for both income and expense
   const data = {
@@ -255,6 +223,15 @@ const Dashboard = ({ email }) => {
       // Reset the form
       setNewEvent({ name: '', date: '' });
     }
+  };
+
+
+  const handleLogout = () => {
+    // Clear the user data from localStorage
+    localStorage.removeItem('userEmail');
+  
+    // Redirect to the login page
+    navigate('/');
   };
   return (
     <div>
@@ -412,6 +389,13 @@ const Dashboard = ({ email }) => {
         </div>
       </div>
         <div className="upcoming">
+        <div
+            style={{
+            height: '800px',
+             // or use 'max-height: 400px;' for flexibility
+            overflowY: 'auto', // enables scrolling if the content exceeds the height
+          }}
+        >
           <div className="header">
             <h4>Schedule Expenses</h4>
             <a href="#">
@@ -461,6 +445,7 @@ const Dashboard = ({ email }) => {
             />
             <button type="submit">Add Event</button>
           </form>
+        </div>
         </div>
       </div>
     </div>
