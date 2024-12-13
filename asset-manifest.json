@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/Xenon_Task1_ResponsiveWebsite/static/css/main.33726740.css",
+    "main.js": "/Xenon_Task1_ResponsiveWebsite/static/js/main.6921989c.js",
+    "static/media/bernard-hermant--IwbJJfoC80-unsplash.jpg": "/Xenon_Task1_ResponsiveWebsite/static/media/bernard-hermant--IwbJJfoC80-unsplash.fa33cebf9cb01b09c570.jpg",
+    "static/media/pexels-christa-grover-977018-2121121.jpg": "/Xenon_Task1_ResponsiveWebsite/static/media/pexels-christa-grover-977018-2121121.7a27e0b8d38c6eb4e14f.jpg",
+    "static/media/vojtech-bruzek-Yrxr3bsPdS0-unsplash.jpg": "/Xenon_Task1_ResponsiveWebsite/static/media/vojtech-bruzek-Yrxr3bsPdS0-unsplash.8193c455ee778d38bc34.jpg",
+    "static/media/jorg-angeli-1tyuLfDOnG0-unsplash.jpg": "/Xenon_Task1_ResponsiveWebsite/static/media/jorg-angeli-1tyuLfDOnG0-unsplash.10538c25f30ebfcae6d8.jpg",
+    "static/media/pexels-pixabay-208736.jpg": "/Xenon_Task1_ResponsiveWebsite/static/media/pexels-pixabay-208736.5e1ad5e7085e1eaab214.jpg",
+    "static/media/pexels-sebastians-731082.jpg": "/Xenon_Task1_ResponsiveWebsite/static/media/pexels-sebastians-731082.de5c09b5a91f2014495a.jpg",
+    "index.html": "/Xenon_Task1_ResponsiveWebsite/index.html",
+    "main.33726740.css.map": "/Xenon_Task1_ResponsiveWebsite/static/css/main.33726740.css.map",
+    "main.6921989c.js.map": "/Xenon_Task1_ResponsiveWebsite/static/js/main.6921989c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.33726740.css",
+    "static/js/main.6921989c.js"
+  ]
+}
