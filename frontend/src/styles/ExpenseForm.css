@@ -123,17 +123,21 @@
   margin-top: 30px;  /* Adjust the margin to make sure the button is below the form and history */
 }
 
-.back-btn {
-  background-color: #512da8;
-  color: white;
-  padding: 10px 20px;
-  font-size: 16px;
+
+.back-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #4527a0; /* Customize button color */
+  color: #fff; /* Text color */
   border: none;
   border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.back-btn:hover {
-  background-color: #4527a0;
+.back-button:hover {
+  background-color: #0056b3;
 }

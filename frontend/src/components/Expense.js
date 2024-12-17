@@ -133,13 +133,15 @@ const ExpenseForm = () => {
       setSuccessMessage('Error creating expense. Please try again.');
     }
   };
-
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
+  const handleBack = () => {
+    navigate(-1); // Navigates to the previous page
   };
 
   return (
     <div className="expense-form-wrapper">
+      <button className="back-button" onClick={handleBack}>
+        &#8592; Back
+      </button>
       <div className="expense-form-container">
         <h2>Create Expense</h2>
         {successMessage && <div className="success-message">{successMessage}</div>}
@@ -238,9 +240,6 @@ const ExpenseForm = () => {
         )}
       </div>
 
-      <div className="back-button-container">
-        <button onClick={handleBackToDashboard} className="back-btn">Back to Dashboard</button>
-      </div>
     </div>
   );
 };

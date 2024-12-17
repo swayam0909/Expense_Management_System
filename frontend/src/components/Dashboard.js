@@ -37,14 +37,14 @@ const Dashboard = ({ email }) => {
   const [lastYearExpense, setLastYearExpense] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [weeklyData, setWeeklyData] = useState({});
-  //const [goals, setGoals] = useState([]);
+  const [cashFlow, setCashFlow] = useState(0);
   const [openGoalForm, setOpenGoalForm] = useState(false);
 
   const navigate = useNavigate();
   const toggleGoalForm = () => {
     setOpenGoalForm(!openGoalForm);
   };
-
+ 
   const barChartData = {
     labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'], // Weekdays (abbreviated)
     datasets: [
@@ -233,6 +233,21 @@ const Dashboard = ({ email }) => {
     // Redirect to the login page
     navigate('/');
   };
+
+  useEffect(() => {
+    setCashFlow(lastMonthIncome - lastMonthExpense);
+  }, [lastMonthIncome, lastMonthExpense]);
+
+
+   // Calculate Progress Percentages
+   const expensePercentage =
+   lastMonthIncome > 0 ? (lastMonthExpense / lastMonthIncome) * 100 : 0;
+
+ const cashFlowPercentage =
+   lastMonthIncome > 0
+     ? ((lastMonthIncome - lastMonthExpense) / lastMonthIncome) * 100
+     : 0;
+
   return (
     <div>
       <div className="top-container">
@@ -277,18 +292,20 @@ const Dashboard = ({ email }) => {
           
 
           <div className="items-list">
-            <div className="item">
+          <div className="item">
               <Link to='/total-income'>
                 <div className="info">
                   <div>
                     <h5>Total Income This Month</h5>
                   </div>
-                  <i className="bx bx-money"></i>
+                  <i className="bx bx-money-withdraw"></i>
                 </div>
+                <div className='itemText'>
+                  <h2>₹{lastMonthIncome}</h2>
+                  </div>
                 <div className="progress">
-                <div className="bar"  ></div>
-                  {/* Display dynamic total income */}
-                  <div className="dynamic-income"></div>
+                  <div className="bar" 
+                   style={{ width: "100%", backgroundColor: "#031224" }}></div>
                 </div>
               </Link>
             </div>
@@ -301,22 +318,38 @@ const Dashboard = ({ email }) => {
                   </div>
                   <i className="bx bx-money-withdraw"></i>
                 </div>
+                <div  className='itemText'>
+                  <h2>₹{lastMonthExpense}</h2>
+                  </div>
                 <div className="progress">
-                  <div className="bar"></div>
+                  <div className="bar" 
+                  style={{
+                    width: `${expensePercentage}%`,
+                    backgroundColor: "#031224"
+                  }}></div>
                 </div>
               </Link>
             </div>
 
             <div className="item">
-              <div className="info">
-                <div>
-                  <h5>Cash Flow</h5>
+              
+                <div className="info">
+                  <div>
+                    <h5>Cash Flow</h5>
+                  </div>
+                  <i className="bx bx-money-withdraw"></i>
                 </div>
-                <i className="bx bxs-dollar-circle"></i>
-              </div>
-              <div className="progress">
-                <div className="bar"></div>
-              </div>
+                <div  className='itemText'>
+                  <h2>₹{cashFlow}</h2>
+                  </div>
+                <div className="progress">
+                  <div className="bar" 
+                  style={{
+                    width: `${cashFlowPercentage}%`,
+                    backgroundColor: "#031224"
+                  }}></div>
+                </div>
+            
             </div>
 
             <div className="item">

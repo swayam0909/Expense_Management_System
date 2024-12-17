@@ -132,12 +132,16 @@ const IncomeForm = () => {
     }
   };
 
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
+
+  const handleBack = () => {
+    navigate(-1); // Navigates to the previous page
   };
 
   return (
     <div className="income-form-wrapper">
+      <button className="back-button" onClick={handleBack}>
+        &#8592; Back
+      </button>
       <div className="income-form-container">
         <h2>Create Income</h2>
         {successMessage && <div className="success-message">{successMessage}</div>}
@@ -229,10 +233,6 @@ const IncomeForm = () => {
             </div>
           ))
         )}
-      </div>
-
-      <div className="back-button-container">
-        <button onClick={handleBackToDashboard} className="back-btn">Back to Dashboard</button>
       </div>
     </div>
   );

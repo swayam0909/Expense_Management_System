@@ -231,6 +231,12 @@ html,body{
     margin-bottom: 10px;
     color: #000;
 }
+.top-container .status .items-list .item .itemText{
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #000;
+}
 
 .top-container .status .items-list .item .info p{
     font-size: 12px;
@@ -259,16 +265,6 @@ html,body{
     border-radius: 10px;
 }
 
-.top-container .status .items-list .item .progress::before{
-    content: "$30,000";
-    color: black;
-    position: absolute;
-    top: -40px;
-    right: 0;
-    font-size: 22px;
-    font-weight: 600;
-}
-
 .top-container .status .items-list .item:nth-child(2) .progress{
     background: #d6d3d1;
 }
@@ -277,9 +273,6 @@ html,body{
     width: 615,650;
 }
 
-.top-container .status .items-list .item:nth-child(2) .progress::before{
-    content: "$15,650";
-}
 
 
 .top-container .status .items-list .item:nth-child(3) .progress{
@@ -290,9 +283,6 @@ html,body{
     width: 14,350;
 }
 
-.top-container .status .items-list .item:nth-child(3) .progress::before{
-    content: "$14,350";
-}
 
 .bottom-container{
     display: flex;
