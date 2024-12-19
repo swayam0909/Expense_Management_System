@@ -7,11 +7,11 @@ const SettingsPage = () => {
   const [language, setLanguage] = useState(localStorage.getItem("language") || "English");
   const [currency, setCurrency] = useState("USD");
   const [isContactFormVisible, setIsContactFormVisible] = useState(false);
-  const [isFAQVisible, setIsFAQVisible] = useState(false); // Toggle for FAQ section
-  const [isPrivacyPolicyVisible, setIsPrivacyPolicyVisible] = useState(false); // Toggle for Privacy Policy
-  const [isEditProfileVisible, setIsEditProfileVisible] = useState(false); // Edit Profile toggle
+  const [isFAQVisible, setIsFAQVisible] = useState(false);
+  const [isPrivacyPolicyVisible, setIsPrivacyPolicyVisible] = useState(false);
+  const [isEditProfileVisible, setIsEditProfileVisible] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
-  const [userDetails, setUserDetails] = useState({
+  const [userDetails, setUser_Details] = useState({
     name: "John Doe",
     email: "johndoe@example.com",
     phone: "+1234567890",
@@ -47,51 +47,50 @@ const SettingsPage = () => {
 
   const handleContactSupportClick = () => {
     setIsContactFormVisible(true);
-    setIsFAQVisible(false); // Hide FAQ when contact support is open
-    setIsPrivacyPolicyVisible(false); // Hide Privacy Policy when contact support is open
-    setIsEditProfileVisible(false); // Hide Edit Profile when contact support is open
+    setIsFAQVisible(false);
+    setIsPrivacyPolicyVisible(false);
+    setIsEditProfileVisible(false);
   };
 
   const handleBackToSettings = () => {
     setIsContactFormVisible(false);
-    setIsFAQVisible(false); // Reset FAQ view when going back
-    setIsPrivacyPolicyVisible(false); // Reset Privacy Policy view when going back
-    setIsEditProfileVisible(false); // Reset Edit Profile view
+    setIsFAQVisible(false);
+    setIsPrivacyPolicyVisible(false);
+    setIsEditProfileVisible(false);
   };
 
   const handleFAQClick = () => {
     setIsFAQVisible(true);
-    setIsContactFormVisible(false); // Hide contact support when FAQ is open
-    setIsPrivacyPolicyVisible(false); // Hide Privacy Policy when FAQ is open
-    setIsEditProfileVisible(false); // Hide Edit Profile when FAQ is open
+    setIsContactFormVisible(false);
+    setIsPrivacyPolicyVisible(false);
+    setIsEditProfileVisible(false);
   };
 
   const handlePrivacyPolicyClick = () => {
     setIsPrivacyPolicyVisible(true);
-    setIsContactFormVisible(false); // Hide contact support when Privacy Policy is open
-    setIsFAQVisible(false); // Hide FAQ when Privacy Policy is open
-    setIsEditProfileVisible(false); // Hide Edit Profile when Privacy Policy is open
+    setIsContactFormVisible(false);
+    setIsFAQVisible(false);
+    setIsEditProfileVisible(false);
   };
 
   const handleEditProfileClick = () => {
     setIsEditProfileVisible(true);
-    setIsContactFormVisible(false); // Hide contact support when Edit Profile is open
-    setIsFAQVisible(false); // Hide FAQ when Edit Profile is open
-    setIsPrivacyPolicyVisible(false); // Hide Privacy Policy when Edit Profile is open
+    setIsContactFormVisible(false);
+    setIsFAQVisible(false);
+    setIsPrivacyPolicyVisible(false);
   };
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
-    setUserDetails((prevDetails) => ({
+    setUser_Details((prevDetails) => ({
       ...prevDetails,
       [name]: value,
     }));
   };
 
   const handleProfileSave = () => {
-    // You can add the logic here to save the profile changes, like API calls
     console.log("Profile updated:", userDetails);
-    setIsEditProfileVisible(false); // Close the Edit Profile view after saving
+    setIsEditProfileVisible(false);
   };
 
   const toggleFAQ = (index) => {
@@ -117,7 +116,6 @@ const SettingsPage = () => {
               <h2 className="section-title">Profile Settings</h2>
               <button className="settings-button" onClick={handleEditProfileClick}>Edit Profile</button>
               <button className="settings-button">Change Password</button>
-              <button className="settings-button">Account Preferences</button>
             </section>
 
             <hr className="settings-hr" />

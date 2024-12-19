@@ -278,6 +278,7 @@ const Dashboard = ({ email }) => {
               {isDropdownOpen &&(
                 <div className="drowdown-menu">
                   <button onClick={handleLogout}>Logout</button>
+                  
                   </div>
               )}
             </div>

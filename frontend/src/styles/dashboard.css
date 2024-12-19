@@ -132,9 +132,7 @@ html,body{
     position: absolute;
     top: 41px; /* Adjust this to position below the username */
     left:20px; /* Align with the left side of the profile container */
-    background-color: #1e293b; /* Background color for the dropdown */
-    border: 1px solid #ccc; /* Optional: Border for the dropdown */
-    border-radius: 25px;
+
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better visibility */
     z-index: 10; /* Ensure it appears above other elements */
     width: 140px; /* Optional: Set width for consistency */
@@ -144,17 +142,13 @@ html,body{
     display: block;
     width: 100%; /* Make button take full width */
     padding: 10px; /* Add some padding for better usability */
-    background: none;
+    background: white;
     border-radius: 25px;
     border: none;
     text-align: center; /* Align text to the left */
     cursor: pointer;
   }
-  
-  .drowdown-menu button:hover {
-    background-color: #f0f0f0; /* Highlight on hover */
-  }
-  
+
   
 .top-container .status{
     padding: 20px 20px 10px;

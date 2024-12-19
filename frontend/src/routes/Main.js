@@ -10,15 +10,18 @@ import Report from '../components/Report';
 import TotalExpenses from '../components/TotalExpenses.js';
 import TotalIncome from '../components/TotalIncome.js';
 import ResetPassword from '../components/ResetPassword';  // Import ResetPassword component
-
+import Home from '../pages/landingPage.js'
+import AdminLogin from '../components/AdminLogin.js';
 
 const Main = () => {
   return (
     <Router>
-      <div className="App">
+      <div className="landingPage">
         {/* Routes */}
         <Routes>
-          <Route path="/" element={<App />} />
+          <Route path="/" element={<Home/>} />
+          <Route path="/login" element={<App />} />
+          <Route path="/adminLogin" element={<AdminLogin />} />
           <Route path="/total-income" element={<TotalIncome />} />
           <Route path="/total-expenses" element={<TotalExpenses />} />
           <Route path="/dashboard" element={<Dashboard />} />
