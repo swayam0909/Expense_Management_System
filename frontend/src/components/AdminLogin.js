@@ -4,19 +4,23 @@ import { useNavigate } from 'react-router-dom';
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // State to handle loading state
+  const [loading, setLoading] = useState(false); // Handle loading state
+  const [error, setError] = useState(null); // Handle error messages
   const navigate = useNavigate();
 
-  // Handle the login form submission
+  // Handle login form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Reset error message on new submission
+    setError(null);
 
     // Set loading to true while making the API request
     setLoading(true);
 
     try {
-      // Making the POST request to the backend
-      const response = await fetch('http://localhost:8080/auth/admin-login', {
+      // Making the POST request to backend (Spring Boot)
+      const response = await fetch('http://localhost:8080/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,24 +28,26 @@ const AdminLogin = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      // Log status and raw response for debugging
+      console.log('Response Status:', response.status); // Log status code
+      const data = await response.json();  // Get the response as JSON
 
+      console.log('Parsed Response:', data); // Log parsed response for debugging
+
+      // Handle different response scenarios
       if (response.ok) {
-        // Save JWT token (or other session data) to localStorage
-        localStorage.setItem('authToken', data.token);
-
-        // Redirect to the admin dashboard or other page
-        navigate('/admin-dashboard');
+        // Successfully logged in
+        localStorage.setItem('adminToken', data.token); // Store token in localStorage or sessionStorage
+        navigate('/admin-dashboard'); // Redirect to the dashboard on success
       } else {
-        // Show error message if credentials are invalid
-        alert(data.message || 'Invalid credentials');
+        // If response is not OK, show an error message
+        setError(data.message || 'Invalid credentials');
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Something went wrong. Please try again later.');
+      setError('Something went wrong. Please try again later.');
     } finally {
-      // Set loading to false after request completion
-      setLoading(false);
+      setLoading(false); // Set loading to false after request completion
     }
   };
 
@@ -81,13 +87,10 @@ const AdminLogin = () => {
       outline: 'none',
       transition: 'border-color 0.3s ease',
     },
-    inputFocus: {
-      borderColor: '#007bff',
-    },
     button: {
       width: '100%',
       padding: '12px',
-      backgroundColor: '     #512da8',
+      backgroundColor: '#512da8',
       color: 'white',
       border: 'none',
       borderRadius: '4px',
@@ -95,12 +98,13 @@ const AdminLogin = () => {
       cursor: 'pointer',
       transition: 'background-color 0.3s ease',
     },
-    buttonHover: {
-      backgroundColor: '#0056b3',
-    },
     buttonDisabled: {
       backgroundColor: '#6c757d',
       cursor: 'not-allowed',
+    },
+    error: {
+      color: 'red',
+      marginBottom: '10px',
     },
   };
 
@@ -108,6 +112,7 @@ const AdminLogin = () => {
     <div style={styles.container}>
       <form onSubmit={handleSubmit} style={styles.formContainer}>
         <h1 style={styles.title}>Admin Login</h1>
+        {error && <div style={styles.error}>{error}</div>} {/* Display error message if exists */}
         <input
           type="email"
           placeholder="Email"

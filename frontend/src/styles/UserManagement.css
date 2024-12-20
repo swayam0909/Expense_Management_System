@@ -1,0 +1,146 @@
+/* UserManagement.css */
+
+.user-management-container {
+    display: flex;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+  
+  .sidebar-new {
+    width: 250px;
+    background-color: #34495e;
+    color: #ecf0f1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .sidebar-new .logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+  }
+  
+  .sidebar-new .nav ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .sidebar-new .nav-item {
+    font-size: 18px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    background-color: #2c3e50;
+    text-align: left;
+    border-radius: 5px;
+    color: #ecf0f1;
+    cursor: pointer;
+  }
+  
+  .sidebar-new .nav-item:hover {
+    background-color: #1abc9c;
+  }
+  
+  .icon {
+    margin-right: 10px;
+  }
+  
+  .main-content-new {
+    flex: 1;
+    padding: 20px;
+    background-color: #ecf0f1;
+  }
+  
+  .header-new {
+    margin-bottom: 20px;
+  }
+  
+  .header-new h1 {
+    font-size: 28px;
+    color: #2c3e50;
+  }
+  
+  .management-new h2 {
+    font-size: 22px;
+    color: #34495e;
+    margin-bottom: 15px;
+  }
+  
+  .data-table-new {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .data-table-new th,
+  .data-table-new td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .data-table-new th {
+    background-color: #34495e;
+    color: #fff;
+  }
+  
+  .data-table-new tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .data-table-new tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .action-btn {
+    padding: 8px 12px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .enable-btn {
+    background-color: #1abc9c;
+    color: #fff;
+  }
+  
+  .enable-btn:hover {
+    background-color: #16a085;
+  }
+  
+  .disable-btn {
+    background-color: #e74c3c;
+    color: #fff;
+  }
+  
+  .disable-btn:hover {
+    background-color: #c0392b;
+  }
+  .back-btn {
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .back-btn:hover {
+    background-color: #45a049;
+  }
+  
+  .back-btn svg {
+    margin-right: 8px; /* Space between the icon and text */
+  }

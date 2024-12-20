@@ -31,13 +31,17 @@ public class Users {
     private List<Expense> expenses = new ArrayList<>();
     private List<Income> incomes = new ArrayList<>();
 
+    // New field for status
+    private String status;  // "Active" or "Disabled"
+
     // Constructors
-    public Users(String userId, String username, String password, String email, String role) {
+    public Users(String userId, String username, String password, String email, String role, String status) {
         this.userId = userId;
         this.username = username;
         this.password = password;
         this.email = email;
         this.role = role;
+        this.status = status;  // Initialize status
     }
 
     public Users() {}
@@ -115,6 +119,14 @@ public class Users {
         this.incomes = incomes;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     // Override equals and hashCode (Optional but recommended for better object comparison)
     @Override
     public boolean equals(Object o) {
@@ -139,6 +151,7 @@ public class Users {
                 ", role='" + role + '\'' +
                 ", expenses=" + expenses +
                 ", incomes=" + incomes +
+                ", status='" + status + '\'' +   // Add status to string representation
                 '}';
     }
 }

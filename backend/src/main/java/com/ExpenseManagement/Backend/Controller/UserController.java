@@ -29,13 +29,21 @@ public class UserController {
     // Register API
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Users user) {
+        // Check if email already exists
         if (userRepository.findByEmail(user.getEmail()) != null) {
-            return ResponseEntity.badRequest().body("Email already exists.");
+            return ResponseEntity.badRequest().body(Map.of("message", "Email already exists."));
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Hash password
+        // Set status to "ACTIVE" when a user is registered
+        user.setStatus("ACTIVE");
+
+        // Hash the password and set it
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // Save the user to the repository
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully.");
+
+        return ResponseEntity.ok(Map.of("message", "User registered successfully."));
     }
 
     // Login API
@@ -45,11 +53,21 @@ public class UserController {
         String password = loginDetails.get("password");
 
         Users user = userRepository.findByEmail(email);
-        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            return ResponseEntity.badRequest().body("Invalid email or password.");
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid email or password."));
         }
 
-        return ResponseEntity.ok("Login successful.");
+        // Check if the user's account is disabled
+        if (user.getStatus().equals("DISABLED")) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Your account is disabled. Please contact the admin."));
+        }
+
+        // Check password validity
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid email or password."));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Login successful."));
     }
 
     // Forgot Password API
@@ -59,7 +77,7 @@ public class UserController {
         try {
             Users user = userRepository.findByEmail(email);
             if (user == null) {
-                return ResponseEntity.badRequest().body("No user found with the provided email.");
+                return ResponseEntity.badRequest().body(Map.of("message", "No user found with the provided email."));
             }
 
             // Generate reset token and set expiry
@@ -82,10 +100,10 @@ public class UserController {
             // Send the email with the reset link
             emailService.sendEmail(email, "Password Reset Request", emailBody);
 
-            return ResponseEntity.ok("Password reset email sent successfully.");
+            return ResponseEntity.ok(Map.of("message", "Password reset email sent successfully."));
         } catch (Exception e) {
             e.printStackTrace(); // Logs the full error
-            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("message", "An error occurred: " + e.getMessage()));
         }
     }
 
@@ -114,23 +132,23 @@ public class UserController {
 
         // Validate the input
         if (resetToken == null || newPassword == null) {
-            return ResponseEntity.badRequest().body("Reset token and new password are required.");
+            return ResponseEntity.badRequest().body(Map.of("message", "Reset token and new password are required."));
         }
 
         // Find the user by reset token
         Users user = userRepository.findByResetToken(resetToken);
         if (user == null) {
-            return ResponseEntity.badRequest().body("Invalid reset token.");
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid reset token."));
         }
 
         // Check if the token has expired
         if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("Reset token has expired.");
+            return ResponseEntity.badRequest().body(Map.of("message", "Reset token has expired."));
         }
 
         // Check if the new password is the same as the old one
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
-            return ResponseEntity.badRequest().body("New password cannot be the same as the old one.");
+            return ResponseEntity.badRequest().body(Map.of("message", "New password cannot be the same as the old one."));
         }
 
         // Set the new password and clear the reset token and expiry
@@ -141,7 +159,7 @@ public class UserController {
         // Save the user with the updated password
         userRepository.save(user);
 
-        return ResponseEntity.ok("Password reset successfully.");
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully."));
     }
 
     // Fetch User Details API
@@ -150,11 +168,45 @@ public class UserController {
         Users user = userRepository.findByEmail(email);
 
         if (user == null) {
-            return ResponseEntity.badRequest().body("User not found.");
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found."));
         }
 
         // Return only necessary information (like username)
         return ResponseEntity.ok(Map.of("username", user.getUsername()));
+    }
+
+    // Set User Status API (Active/Disabled)
+    @PutMapping("/set-status")
+    public ResponseEntity<?> setUserStatus(@RequestParam String email, @RequestParam String status) {
+        // Validate status
+        if (!status.equals("ACTIVE") && !status.equals("DISABLED")) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid status. Use 'ACTIVE' or 'DISABLED'."));
+        }
+
+        // Find user by email
+        Users user = userRepository.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found."));
+        }
+
+        // Update user status
+        user.setStatus(status);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "User status updated successfully."));
+    }
+
+    // Get User Status API
+    @GetMapping("/get-status")
+    public ResponseEntity<?> getUserStatus(@RequestParam String email) {
+        // Find user by email
+        Users user = userRepository.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found."));
+        }
+
+        // Return user status
+        return ResponseEntity.ok(Map.of("message", "User status: " + user.getStatus()));
     }
 
 }

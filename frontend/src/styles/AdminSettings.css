@@ -1,0 +1,32 @@
+/* Settings.css */
+
+.setting {
+    margin-bottom: 20px;
+  }
+  
+  .setting label {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .setting select,
+  .setting input[type="checkbox"] {
+    margin-left: 10px;
+    padding: 8px;
+    font-size: 16px;
+  }
+  
+  .setting button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+  
+  .setting button:hover {
+    background-color: #218838;
+  }
+  
