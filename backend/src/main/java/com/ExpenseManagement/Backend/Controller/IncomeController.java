@@ -3,9 +3,11 @@ package com.ExpenseManagement.Backend.Controller;
 import com.ExpenseManagement.Backend.Model.Income;
 import com.ExpenseManagement.Backend.Service.IncomeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -39,17 +41,25 @@ public class IncomeController {
         return ResponseEntity.ok(Map.of("totalIncome", total));
     }
 
-    // Get Incomes for a specific date range
+    // Get Incomes for a specific date range (using LocalDate)
     @GetMapping("/range")
-    public ResponseEntity<List<Income>> getIncomesByDateRange(
+    public ResponseEntity<List<Income>> getIncomesInRange(
             @RequestParam String email,
-            @RequestParam String startDate,
-            @RequestParam String endDate) {
-        // Parse the date strings into LocalDateTime
-        LocalDateTime start = LocalDateTime.parse(startDate);
-        LocalDateTime end = LocalDateTime.parse(endDate);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
-        List<Income> incomes = incomeService.getIncomesByDateRange(email, start, end);
+        System.out.println("Received request for incomes in range");
+
+        // Convert LocalDate to LocalDateTime (midnight)
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59); // end of the day
+
+        List<Income> incomes = incomeService.getIncomesByDateRange(email, startDateTime, endDateTime);
+
+        if (incomes.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
         return ResponseEntity.ok(incomes);
     }
 

@@ -1,204 +1,281 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios for API requests
-import { Line, Pie, Bar } from "react-chartjs-2";
-import "chart.js/auto"; // Required for charts to render
+import { Pie, Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js";
+import axios from "axios";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import "../styles/Report.css";
 
-const OverallReportPage = () => {
-  // State for charts and summary data
-  const [lineData, setLineData] = useState(null);
-  const [pieData, setPieData] = useState(null);
-  const [barData, setBarData] = useState(null);
-  const [totals, setTotals] = useState({
-    income: 0,
-    expenses: 0,
-    savings: 0,
-  });
+// Register required chart elements
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement // Registering the ArcElement for pie charts
+);
 
-  // State for selected period
-  const [selectedPeriod, setSelectedPeriod] = useState("lastMonth");
+const Report = () => {
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [incomeData, setIncomeData] = useState([]);
+  const [expenseData, setExpenseData] = useState([]);
+  const [summary, setSummary] = useState({ income: 0, expenses: 0, netBalance: 0 });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Mock data for the different time periods
-  const dataForPeriod = {
-    lastMonth: {
-      trends: {
-        labels: ["2024-11-01", "2024-11-02", "2024-11-03", "2024-11-04", "2024-11-05"],
-        data: [200, 400, 300, 500, 600],
-      },
-      expenseBreakdown: {
-        labels: ["Food", "Transport", "Entertainment", "Others"],
-        data: [200, 300, 100, 400],
-      },
-      frequentCategories: {
-        labels: ["Food", "Transport", "Entertainment", "Others"],
-        data: [600, 400, 300, 500],
-      },
-      totals: {
-        income: 5000,
-        expenses: 2500,
-        savings: 2500,
-      },
-    },
-    last6Months: {
-      trends: {
-        labels: ["2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11"],
-        data: [1500, 1600, 1700, 1800, 1900, 2000],
-      },
-      expenseBreakdown: {
-        labels: ["Food", "Transport", "Entertainment", "Others"],
-        data: [800, 1000, 400, 600],
-      },
-      frequentCategories: {
-        labels: ["Food", "Transport", "Entertainment", "Others"],
-        data: [5000, 3000, 1000, 2000],
-      },
-      totals: {
-        income: 30000,
-        expenses: 15000,
-        savings: 15000,
-      },
-    },
-    lastYear: {
-      trends: {
-        labels: ["2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11"],
-        data: [2500, 2600, 2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 3600],
-      },
-      expenseBreakdown: {
-        labels: ["Food", "Transport", "Entertainment", "Others"],
-        data: [2000, 3000, 1200, 1500],
-      },
-      frequentCategories: {
-        labels: ["Food", "Transport", "Entertainment", "Others"],
-        data: [12000, 8000, 4000, 5000],
-      },
-      totals: {
-        income: 60000,
-        expenses: 30000,
-        savings: 30000,
-      },
-    },
+  // Fetching user email from local storage (this should be dynamically handled)
+  const userEmail = localStorage.getItem("userEmail") || "user@example.com";
+
+  // Function to format the date to a readable string
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString(); // Format to 'MM/DD/YYYY'
   };
 
-  // Effect to load data for the selected period
+  // Fetch data when date filters are changed
   useEffect(() => {
-    const selectedData = dataForPeriod[selectedPeriod];
+    if (startDate && endDate) {
+      setError(""); // Clear previous errors
+      setLoading(true); // Set loading state to true
 
-    // Update charts and totals based on the selected period's data
-    setLineData({
-      labels: selectedData.trends.labels,
-      datasets: [
-        {
-          label: "Spending Over Time",
-          data: selectedData.trends.data,
-          borderColor: "#512da8",
-          backgroundColor: "rgba(81, 45, 168, 0.2)",
-          borderWidth: 2,
-          fill: true,
-        },
-      ],
+      // Fetch income data
+      axios
+        .get(`http://localhost:8080/income/range?email=${userEmail}&startDate=${startDate}&endDate=${endDate}`)
+        .then((response) => {
+          setIncomeData(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching income data:", error);
+          setError("Failed to fetch income data.");
+        });
+
+      // Fetch expense data
+      axios
+        .get(`http://localhost:8080/expense/range?email=${userEmail}&startDate=${startDate}&endDate=${endDate}`)
+        .then((response) => {
+          setExpenseData(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching expense data:", error);
+          setError("Failed to fetch expense data.");
+        })
+        .finally(() => {
+          setLoading(false); // Set loading state to false after API call is finished
+        });
+    }
+  }, [startDate, endDate, userEmail]);
+
+  // Calculate summary (income, expenses, netBalance)
+  useEffect(() => {
+    const totalIncome = incomeData.reduce((sum, income) => sum + income.amount, 0);
+    const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+    setSummary({
+      income: totalIncome,
+      expenses: totalExpenses,
+      netBalance: totalIncome - totalExpenses,
     });
+  }, [incomeData, expenseData]);
 
-    setPieData({
-      labels: selectedData.expenseBreakdown.labels,
-      datasets: [
-        {
-          label: "Category Distribution",
-          data: selectedData.expenseBreakdown.data,
-          backgroundColor: ["#512da8", "#673ab7", "#9575cd", "#d1c4e9"],
-          hoverOffset: 4,
-        },
-      ],
+  // Handle PDF export with charts
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Expense Report", 14, 10);
+  
+    // Add summary to PDF
+    doc.setFontSize(12);
+    doc.text("Summary", 14, 20);
+    doc.text(`Income: ₹${summary.income}`, 14, 30);
+    doc.text(`Expenses: ₹${summary.expenses}`, 14, 40);
+    doc.text(`Net Balance: ₹${summary.netBalance}`, 14, 50);
+  
+    // Add charts as images to PDF
+    // For Pie Chart
+    const pieChart = document.getElementById("pie-chart"); // Get the pie chart canvas element
+    if (pieChart) {
+      const pieChartImage = pieChart.toDataURL("image/png"); // Convert to base64 image
+      doc.addImage(pieChartImage, "PNG", 14, 60, 180, 100); // Add image to PDF at specific coordinates
+    }
+  
+    // For Bar Chart
+    const barChart = document.getElementById("bar-chart"); // Get the bar chart canvas element
+    if (barChart) {
+      const barChartImage = barChart.toDataURL("image/png"); // Convert to base64 image
+      doc.addImage(barChartImage, "PNG", 14, 170, 180, 100); // Add image to PDF at specific coordinates
+    }
+  
+    // Combine income and expense data for the table
+    const tableData = [
+      ...incomeData.map((txn) => [
+        formatDate(txn.date),
+        txn.source || "Income", // Use 'source' for income data
+        "Income",
+        `₹${txn.amount}`],
+      ),
+      ...expenseData.map((txn) => [
+        formatDate(txn.date),
+        txn.category,
+        "Expense",
+        `₹${txn.amount}`],
+      ),
+    ];
+  
+    // Add table to PDF
+    doc.autoTable({
+      head: [["Date", "Category/Source", "Type", "Amount"]],
+      body: tableData,
+      startY: 280,
     });
+  
+    // Save the PDF
+    doc.save("Expense_Report.pdf");
+  };
 
-    setBarData({
-      labels: selectedData.frequentCategories.labels,
-      datasets: [
-        {
-          label: "Frequent Categories",
-          data: selectedData.frequentCategories.data,
-          backgroundColor: "#673ab7",
-        },
-      ],
-    });
+  // Group expenses by category and calculate total per category
+  const categoryColors = {
+    Food: "#4B0082",         // Indigo
+    Transport: "#FF8C00",    // Dark Orange
+    Utilities: "#008080",    // Teal
+    Entertainment: "#DC143C", // Crimson
+    Miscellaneous: "#4285F4", // Google Blue
+  };
 
-    setTotals(selectedData.totals);
-  }, [selectedPeriod]);
+  const expenseSummary = expenseData.reduce((acc, expense) => {
+    if (!acc[expense.category]) {
+      acc[expense.category] = 0;
+    }
+    acc[expense.category] += expense.amount;
+    return acc;
+  }, {});
 
-  // Handle period selection
-  const handlePeriodChange = (e) => {
-    setSelectedPeriod(e.target.value);
+  // Pie chart data
+  const pieChartData = {
+    labels: Object.keys(expenseSummary).map((category) => `${category} - ₹${expenseSummary[category]}`),
+    datasets: [
+      {
+        data: Object.values(expenseSummary),
+        backgroundColor: Object.keys(expenseSummary).map((category) => categoryColors[category]),
+      },
+    ],
   };
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", padding: "20px", color: "#333" }}>
-      {/* Header */}
-      <h1 style={{ color: "#512da8", textAlign: "center", marginBottom: "20px" }}>
-        Overall Expense Report
-      </h1>
+    <div className="report-page-container">
+      {/* Back Button */}
+      <button className="back-button" onClick={() => window.history.back()}>
+        &lt; Back
+      </button>
 
-      {/* Period Selection */}
-      <div style={{ marginBottom: "30px", textAlign: "center" }}>
-        <label style={{ marginRight: "10px" }}>Select Time Period:</label>
-        <select value={selectedPeriod} onChange={handlePeriodChange}>
-          <option value="lastMonth">Last Month</option>
-          <option value="last6Months">Last 6 Months</option>
-          <option value="lastYear">Last Year</option>
-        </select>
+      <h1 className="report-title">Expense Report</h1>
+
+      {/* Date Filters */}
+      <div className="date-filters">
+        <label>
+          Start Date:
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </label>
+        <label>
+          End Date:
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </label>
+        <button className="generate-report-btn" onClick={generatePDF} disabled={loading}>
+          Generate Report
+        </button>
       </div>
 
-      {/* Overview Section */}
-      <div style={{ display: "flex", justifyContent: "space-around", marginBottom: "30px" }}>
-        <div>
-          <h3>Total Income</h3>
-          <p style={{ color: "#512da8", fontWeight: "bold" }}>${totals.income}</p>
-        </div>
-        <div>
-          <h3>Total Expenses</h3>
-          <p style={{ color: "#d32f2f", fontWeight: "bold" }}>${totals.expenses}</p>
-        </div>
-        <div>
-          <h3>Net Savings</h3>
-          <p style={{ color: "#388e3c", fontWeight: "bold" }}>${totals.savings}</p>
-        </div>
+      {/* Error Handling */}
+      {error && <div className="error-message">{error}</div>}
+
+      {/* Summary Section */}
+      <div className="summary-section">
+        <p>Income: ₹{summary.income}</p>
+        <p>Expenses: ₹{summary.expenses}</p>
+        <p>Net Balance: ₹{summary.netBalance}</p>
       </div>
 
       {/* Charts Section */}
-      <div style={{ display: "flex", justifyContent: "space-around", flexWrap: "wrap" }}>
-        <div style={{ width: "45%", marginBottom: "30px" }}>
-          <h3 style={{ color: "#512da8" }}>Spending Over Time</h3>
-          {lineData && <Line data={lineData} />}
-        </div>
+      <div className="charts-section">
+        {/* Pie Chart for Expenses Breakdown */}
+        {expenseData.length > 0 && (
+          <div className="chart">
+            <h2>Expense Breakdown</h2>
+            <Pie
+              id="pie-chart" // Give the Pie chart an ID to reference later
+              data={pieChartData}
+            />
+          </div>
+        )}
 
-        <div style={{ width: "45%", marginBottom: "30px" }}>
-          <h3 style={{ color: "#512da8" }}>Expense Breakdown</h3>
-          {pieData && <Pie data={pieData} />}
-        </div>
-
-        <div style={{ width: "45%", marginBottom: "30px" }}>
-          <h3 style={{ color: "#512da8" }}>Frequent Categories</h3>
-          {barData && <Bar data={barData} />}
-        </div>
+        {/* Bar Chart for Income vs Expenses */}
+        {incomeData.length > 0 && expenseData.length > 0 && (
+          <div className="chart">
+            <h2>Income vs Expenses</h2>
+            <Bar
+              id="bar-chart" // Give the Bar chart an ID to reference later
+              data={{
+                labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+                datasets: [
+                  {
+                    label: "Income",
+                    data: incomeData.map((e) => e.amount),
+                    backgroundColor: "#4169E1",
+                  },
+                  {
+                    label: "Expenses",
+                    data: expenseData.map((e) => e.amount),
+                    backgroundColor: "#FFD700",
+                  },
+                ],
+              }}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Export Options Section */}
-      <div style={{ marginTop: "20px", textAlign: "center" }}>
-        <h3 style={{ color: "#512da8" }}>Export Report</h3>
-        <button
-          style={{
-            margin: "10px",
-            padding: "10px 20px",
-            backgroundColor: "#512da8",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-          onClick={() => alert("Exporting overall report as PDF")}
-        >
-          Export as PDF
-        </button>
+      {/* Transactions Table Section */}
+      <div className="transactions-section">
+        <h2>Transactions</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {expenseData.map((txn, index) => (
+              <tr key={index}>
+                <td>{formatDate(txn.date)}</td>
+                <td>{txn.category}</td>
+                <td>Expense</td>
+                <td>₹{txn.amount}</td>
+              </tr>
+            ))}
+            {incomeData.map((txn, index) => (
+              <tr key={index + expenseData.length}>
+                <td>{formatDate(txn.date)}</td>
+                <td>{txn.source}</td>
+                <td>Income</td>
+                <td>₹{txn.amount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
 
-export default OverallReportPage;
+export default Report;

@@ -3,6 +3,7 @@ package com.ExpenseManagement.Backend.Repository;
 import com.ExpenseManagement.Backend.Model.Expense;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

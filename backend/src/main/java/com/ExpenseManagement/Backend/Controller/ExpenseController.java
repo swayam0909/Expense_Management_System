@@ -3,9 +3,12 @@ package com.ExpenseManagement.Backend.Controller;
 import com.ExpenseManagement.Backend.Model.Expense;
 import com.ExpenseManagement.Backend.Service.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -86,5 +89,25 @@ public class ExpenseController {
     public ResponseEntity<Map<String, Double>> getWeeklyExpenses(@RequestParam String email) {
         Map<String, Double> weeklyExpenses = expenseService.getWeeklyExpenses(email);
         return ResponseEntity.ok(weeklyExpenses);
+    }
+
+    // Get Expenses within a custom date range
+    @GetMapping("/range")
+    public ResponseEntity<List<Expense>> getExpensesInRange(
+            @RequestParam String email,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        // Convert LocalDate to LocalDateTime (midnight)
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59); // end of the day
+
+        List<Expense> expenses = expenseService.getExpensesByDateRange(email, startDateTime, endDateTime);
+
+        if (expenses.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(expenses);
     }
 }

@@ -81,4 +81,5 @@ public class IncomeService {
         List<Income> income = incomeRepo.findByEmailAndDateAfter(email, oneYearAgo);
         return income.stream().mapToDouble(Income::getAmount).sum();
     }
+
 }

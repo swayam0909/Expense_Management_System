@@ -1,0 +1,142 @@
+/* General Report Page Styling */
+.report-page-container {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Back Button Styling */
+  .back-button {
+    background-color: #512da8;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .back-button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Title Styling */
+  .report-title {
+    text-align: center;
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 30px;
+  }
+  
+  /* Date Filters Section Styling */
+  .date-filters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .date-filters input {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 65%;
+  }
+  
+  .generate-report-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #512da8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .generate-report-btn:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  .generate-report-btn:hover {
+    background-color: #160342;
+  }
+  
+  /* Error Message Styling */
+  .error-message {
+    color: red;
+    font-size: 16px;
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  /* Summary Section Styling */
+  .summary-section {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+  }
+  
+  .summary-section p {
+    font-size: 18px;
+    color: #333;
+    margin: 10px 0;
+  }
+  
+  /* Charts Section Styling */
+.charts-section {
+    display: flex;
+    justify-content: space-around;
+    gap: 50px; /* Add consistent spacing between charts */
+    flex-wrap: wrap; /* Ensure charts stack on smaller screens */
+    margin-bottom: 30px;
+  }
+  
+  /* Ensure Charts Scale Responsively */
+  .charts-section .chart canvas {
+    
+    justify-content: center; /* Allow the canvas to resize */
+    max-height: 80%; /* Prevent the canvas from overflowing the container */
+    object-fit: contain; /* Maintain the aspect ratio of the chart */
+  }
+  
+  
+   
+  /* Transactions Table Section Styling */
+  .transactions-section {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transactions-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .transactions-section th,
+  .transactions-section td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid black;
+    
+  }
+  
+  .transactions-section th {
+    background-color: #512da8;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .transactions-section tr:hover {
+    background-color: #f1f1f1;
+  }
+  

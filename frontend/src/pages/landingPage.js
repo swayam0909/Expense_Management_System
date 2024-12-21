@@ -11,9 +11,10 @@ function LandingPage() {
 
   // Array of local image paths for the carousel
   const images = [
-    require('../assets/Screenshot 2024-12-18 182126.png'),
-    require('../assets/Screenshot 2024-12-18 182246.png'),
-    require('../assets/Screenshot 2024-12-18 182300.png'),
+    require('../assets/dashboard.png'),
+    require('../assets/income.png'),
+    require('../assets/report.png'),
+    require('../assets/expense.png'),
     require('../assets/Screenshot 2024-12-18 182310.png')
   ];
 
@@ -122,7 +123,7 @@ function LandingPage() {
           <div className="pricing-card">
             <h3>Free Plan</h3>
             <p>Basic expense tracking.</p>
-            <button className="cta-button" onClick={handleSignUp}>Try Free</button>
+            <button className="cta-button secondary" onClick={handleSignUp}>Try Free</button>
           </div>
           <div className="pricing-card">
             <h3>Pro Plan</h3>
