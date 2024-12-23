@@ -398,7 +398,7 @@ const Dashboard = ({ email }) => {
       <div className='popular'>
         <div
             style={{
-            height: '800px',
+            height: '580px',
              // or use 'max-height: 400px;' for flexibility
             overflowY: 'auto', // enables scrolling if the content exceeds the height
           }}
@@ -425,7 +425,7 @@ const Dashboard = ({ email }) => {
         <div className="upcoming">
         <div
             style={{
-            height: '800px',
+            height: '580px',
              // or use 'max-height: 400px;' for flexibility
             overflowY: 'auto', // enables scrolling if the content exceeds the height
           }}

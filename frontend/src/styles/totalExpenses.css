@@ -1,56 +1,102 @@
+/* Scoped CSS for TotalExpenses Component */
+
+/* Container for the entire page, scoped to TotalExpenses */
 .total-expenses-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    text-align: center;
-    background: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  h1 {
-    color: #512da8;
-    margin-bottom: 20px;
-  }
-  
-  .summary {
-    background: #e8eaf6;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-  }
-  
-  .search-bar input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .expenses-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .expenses-table th,
-  .expenses-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .expenses-table th {
-    background: #512da8;
-    color: #fff;
-  }
-  
-  .expenses-table tbody tr:nth-child(even) {
-    background: #f2f2f2;
-  }
-  
-  .no-data {
-    text-align: center;
-    color: #999;
-  }
-  
+  padding: 20px;
+  padding-top: 80px; /* To prevent content from hiding behind the fixed header */
+}
+
+/* Fixed header style, scoped to TotalExpenses */
+.total-expenses-fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  padding: 15px;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Back button style, scoped to TotalExpenses */
+.total-expenses-back-button {
+  position: flex;
+  top: 20px;
+  left: 20px;
+  background-color: #512da8;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 45%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Title style, scoped to TotalExpenses */
+.total-expenses-title {
+  display: inline-block;
+  font-size: 24px;
+  margin-left: 10px;
+  margin-right: 20px;
+}
+
+/* Category filter buttons, scoped to TotalExpenses */
+.total-expenses-categories {
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.total-expenses-category-button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.total-expenses-category-button.active {
+  background-color: #512da8;
+  color: #fff;
+}
+
+/* Content section style, scoped to TotalExpenses */
+.total-expenses-content {
+  margin-top: 120px; /* Push content down below the fixed header */
+  padding-bottom: 50px;
+}
+
+/* Total Expense section style, scoped to TotalExpenses */
+.total-expenses-total-expense {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+/* Expense list container, scoped to TotalExpenses */
+.total-expenses-list {
+  margin-top: 20px;
+}
+
+/* Table style for expenses, scoped to TotalExpenses */
+.total-expenses-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.total-expenses-table th, .total-expenses-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Loading and error message style, scoped to TotalExpenses */
+.total-expenses-loading,
+.total-expenses-error {
+  font-size: 16px;
+  color: #ff6600;
+}
+
+/* No expenses found message, scoped to TotalExpenses */
+.total-expenses-no-expenses {
+  color: #ff0000;
+  font-size: 16px;
+}

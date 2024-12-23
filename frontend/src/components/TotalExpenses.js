@@ -1,70 +1,127 @@
 import React, { useState, useEffect } from "react";
-import '../styles/totalExpenses.css'; // Add your styles here if needed
+import axios from "axios";
+import "../styles/totalExpenses.css";
 
 const TotalExpenses = () => {
   const [expenses, setExpenses] = useState([]);
-  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [totalExpense, setTotalExpense] = useState(0);
 
   useEffect(() => {
-    // Mock API call to fetch expense data
+    // Fetch expenses from the backend
     const fetchExpenses = async () => {
-      const data = [
-        { date: "2024-12-01", category: "Food", amount: 50 },
-        { date: "2024-12-02", category: "Shopping", amount: 150 },
-        { date: "2024-12-03", category: "Transport", amount: 30 },
-        { date: "2024-12-04", category: "Utilities", amount: 80 },
-      ];
-      setExpenses(data);
+      const userEmail = localStorage.getItem("userEmail");
+
+      if (!userEmail) {
+        setError("User email not found in localStorage. Please log in.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get("http://localhost:8080/expense/all", {
+          params: { email: userEmail }, // Use email from localStorage
+        });
+        // Sort expenses by date (most recent first)
+        const sortedExpenses = response.data.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        setExpenses(sortedExpenses);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch expenses. Please try again later.");
+        setLoading(false);
+      }
     };
 
     fetchExpenses();
   }, []);
 
-  const filteredExpenses = expenses.filter(expense =>
-    expense.category.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredExpenses =
+    activeCategory === "All"
+      ? expenses
+      : expenses.filter((expense) => expense.category === activeCategory);
+
+  // Calculate total expense for the filtered data
+  useEffect(() => {
+    const total = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+    setTotalExpense(total);
+  }, [filteredExpenses]);
 
   return (
     <div className="total-expenses-container">
-      <h1>Total Expenses</h1>
-      <div className="summary">
-        <h2>Total Expenses This Month: ₹
-          {expenses.reduce((total, expense) => total + expense.amount, 0)}
-        </h2>
-      </div>
+      <div className="total-expenses-fixed-header">
+        {/* Back Button */}
+        <button className="total-expenses-back-button" onClick={() => window.history.back()}>
+          ⬅ Back
+        </button>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search by category..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+        {/* Title */}
+        <h1 className="total-expenses-title">Expense History</h1>
 
-      <table className="expenses-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Category</th>
-            <th>Amount (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredExpenses.map((expense, index) => (
-            <tr key={index}>
-              <td>{expense.date}</td>
-              <td>{expense.category}</td>
-              <td>{expense.amount}</td>
-            </tr>
-          ))}
-          {filteredExpenses.length === 0 && (
-            <tr>
-              <td colSpan="3" className="no-data">No expenses found.</td>
-            </tr>
+        {/* Category Filters */}
+        <div className="total-expenses-categories">
+          {["All", "Food", "Transport", "Utilities", "Entertainment", "Miscellaneous"].map(
+            (category) => (
+              <button
+                key={category}
+                className={`total-expenses-category-button ${
+                  activeCategory === category ? "active" : ""
+                }`}
+                onClick={() => setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            )
           )}
-        </tbody>
-      </table>
+        </div>
+      </div>
+
+      {/* Main Content Section */}
+      <div className="total-expenses-content">
+        {/* Error or Loading State */}
+        {loading && <p className="total-expenses-loading">Loading expenses...</p>}
+        {error && <p className="total-expenses-error">{error}</p>}
+
+        {!loading && !error && (
+          <>
+            {/* Total Expense */}
+            <div className="total-expenses-total-expense">
+              <h3>Total Expense: ₹{totalExpense.toFixed(2)}</h3>
+            </div>
+
+            {/* Expense List */}
+            <div className="total-expenses-list">
+              {filteredExpenses.length > 0 ? (
+                <table className="total-expenses-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Category</th>
+                      <th>Description</th>
+                      <th>Amount (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredExpenses.map((expense) => (
+                      <tr key={expense.id}>
+                        <td>{new Date(expense.date).toLocaleDateString()}</td>
+                        <td>{expense.category}</td>
+                        <td>{expense.description || "No description provided"}</td>
+                        <td>{expense.amount.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="total-expenses-no-expenses">No expenses found for this category.</p>
+              )}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

@@ -44,7 +44,7 @@ const Report = () => {
       axios
         .get(`http://localhost:8080/income/range?email=${userEmail}&startDate=${startDate}&endDate=${endDate}`)
         .then((response) => {
-          setIncomeData(response.data);
+          setIncomeData(Array.isArray(response.data) ? response.data : []);
         })
         .catch((error) => {
           console.error("Error fetching income data:", error);
@@ -55,7 +55,7 @@ const Report = () => {
       axios
         .get(`http://localhost:8080/expense/range?email=${userEmail}&startDate=${startDate}&endDate=${endDate}`)
         .then((response) => {
-          setExpenseData(response.data);
+          setExpenseData(Array.isArray(response.data) ? response.data : []);
         })
         .catch((error) => {
           console.error("Error fetching expense data:", error);
@@ -69,14 +69,21 @@ const Report = () => {
 
   // Calculate summary (income, expenses, netBalance)
   useEffect(() => {
-    const totalIncome = incomeData.reduce((sum, income) => sum + income.amount, 0);
-    const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+    const totalIncome = Array.isArray(incomeData) 
+      ? incomeData.reduce((sum, income) => sum + income.amount, 0)
+      : 0; // Check if incomeData is an array before calling reduce
+  
+    const totalExpenses = Array.isArray(expenseData) 
+      ? expenseData.reduce((sum, expense) => sum + expense.amount, 0)
+      : 0; // Check if expenseData is an array before calling reduce
+  
     setSummary({
       income: totalIncome,
       expenses: totalExpenses,
       netBalance: totalIncome - totalExpenses,
     });
   }, [incomeData, expenseData]);
+  
 
   // Handle PDF export with charts
   const generatePDF = () => {
@@ -165,7 +172,7 @@ const Report = () => {
     <div className="report-page-container">
       {/* Back Button */}
       <button className="back-button" onClick={() => window.history.back()}>
-        &lt; Back
+      &#8592; Back
       </button>
 
       <h1 className="report-title">Expense Report</h1>
@@ -209,7 +216,8 @@ const Report = () => {
         {expenseData.length > 0 && (
           <div className="chart">
             <h2>Expense Breakdown</h2>
-            <Pie
+            <Pie 
+            
               id="pie-chart" // Give the Pie chart an ID to reference later
               data={pieChartData}
             />
@@ -220,7 +228,7 @@ const Report = () => {
         {incomeData.length > 0 && expenseData.length > 0 && (
           <div className="chart">
             <h2>Income vs Expenses</h2>
-            <Bar
+            <Bar  
               id="bar-chart" // Give the Bar chart an ID to reference later
               data={{
                 labels: ["Week 1", "Week 2", "Week 3", "Week 4"],

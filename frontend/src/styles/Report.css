@@ -16,12 +16,12 @@
     padding: 10px 15px;
     font-size: 16px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 50%;
     margin-bottom: 20px;
   }
   
   .back-button:hover {
-    background-color: #0056b3;
+    background-color: #062c56;
   }
   
   /* Title Styling */
@@ -96,13 +96,15 @@
     gap: 50px; /* Add consistent spacing between charts */
     flex-wrap: wrap; /* Ensure charts stack on smaller screens */
     margin-bottom: 30px;
+    max-height: 400px;
   }
   
   /* Ensure Charts Scale Responsively */
   .charts-section .chart canvas {
-    
+    height: 300px;
+    width: 300px;
     justify-content: center; /* Allow the canvas to resize */
-    max-height: 80%; /* Prevent the canvas from overflowing the container */
+    max-height: 100%; /*Prevent the canvas from overflowing the container */
     object-fit: contain; /* Maintain the aspect ratio of the chart */
   }
   

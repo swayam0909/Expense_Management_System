@@ -10,15 +10,13 @@ import Report from '../components/Report';
 import TotalExpenses from '../components/TotalExpenses.js';
 import TotalIncome from '../components/TotalIncome.js';
 import ResetPassword from '../components/ResetPassword';  // Import ResetPassword component
-import Home from '../pages/landingPage.js'
+import Home from '../pages/landingPage.js';
 import AdminLogin from '../components/AdminLogin.js';
 import AdminDashboard from '../components/AdminDashboard.js';
 import UserManagement from '../components/UserManagement';
-import AdminAnalytics from '../components/AdminAnalytics.js';
 import AdminExpenses from '../components/AdminExpense.js';
-import AdminGoals from '../components/AdminGoals.js';
-import AdminNotifications from '../components/AdminNotifications.js';
-import AdminSettings from '../components/AdminSettings.js'
+import AdminQueries from '../components/AdminQueries.js';
+import AdminSettings from '../components/AdminSettings.js';
 
 const Main = () => {
   return (
@@ -26,27 +24,25 @@ const Main = () => {
       <div className="landingPage">
         {/* Routes */}
         <Routes>
-          <Route path="/" element={<Home/>} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<App />} />
           <Route path="/adminLogin" element={<AdminLogin />} />
           <Route path="/total-income" element={<TotalIncome />} />
           <Route path="/total-expenses" element={<TotalExpenses />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path='/settings' element={<SettingsPage/>}/>
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} /> {/* New route for Reset Password */}
           <Route path="/expense" element={<Expense />} />
           <Route path="/income" element={<Income />} />
           <Route path="/report" element={<Report />} />
 
+          {/* Admin Routes */}
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/user-management" element={<UserManagement/>}/>
-
+          <Route path="/user-management" element={<UserManagement />} />
           <Route path="/admin-expenses" element={<AdminExpenses />} />
-        <Route path="/admin-analytics" element={<AdminAnalytics />} />
-        <Route path="/admin-goals" element={<AdminGoals />} />
-        <Route path="/admin-notifications" element={<AdminNotifications />} />
-        <Route path="/admin-settings" element={<AdminSettings />} />
+          <Route path="/admin-queries" element={<AdminQueries />} />
+          <Route path="/admin-settings" element={<AdminSettings />} />
         </Routes>
       </div>
     </Router>

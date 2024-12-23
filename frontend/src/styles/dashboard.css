@@ -362,7 +362,7 @@ html,body{
 }
 
 .bottom-container .prog-status{
-    width: 50%;
+    width: 40%;
 }
 
 .bottom-container .prog-status .header,
@@ -379,32 +379,6 @@ html,body{
 .bottom-container .upcoming .header h4{
     font-weight: 600;
 }
-
-.tabs {
-    display: flex;
-    gap: 1rem;
-  }
-  
-  .tab {
-    padding: 0.5rem 1rem;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  
-  .tab.active {
-    font-weight: bold;
-    color: white;
-    background-color: #512da8;
-    border-radius: 25px;
-  }
-  
-  .tab:hover {
-    color:#080808 ;
-  }
-  
-
 .bottom-container .prog-status .header .tabs{
     background: #f3f3f3;
     padding: 4px;
@@ -448,7 +422,7 @@ html,body{
 }
 
 .bottom-container .popular{
-    width: 25%;
+    width: 30%;
 }
 
 .bottom-container .popular .header,

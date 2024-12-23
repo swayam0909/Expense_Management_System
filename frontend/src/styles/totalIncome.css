@@ -1,80 +1,85 @@
-.total-income-page {
-    font-family: "Arial", sans-serif;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    background-color: #f4f4f9;
-  }
-  
-  .income-header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .income-header h1 {
-    color: #512da8;
-  }
-  
-  .income-summary {
-    text-align: center;
-    margin: 20px 0;
-  }
-  
-  .income-summary h2 {
-    color: #444;
-  }
-  
-  .income-amount {
-    font-size: 2rem;
-    color: #4caf50;
-    margin: 10px 0;
-  }
-  
-  .add-income-btn {
-    background-color: #512da8;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .add-income-btn:hover {
-    background-color: #673ab7;
-  }
-  
-  .income-history {
-    margin-top: 30px;
-  }
-  
-  .income-history h2 {
-    margin-bottom: 15px;
-    color: #444;
-  }
-  
-  .income-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0 auto;
-  }
-  
-  .income-table th,
-  .income-table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .income-table th {
-    background-color: #512da8;
-    color: #fff;
-  }
-  
-  .income-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  .income-table tr:hover {
-    background-color: #ddd;
-  }
-  
+/* Scoped CSS for TotalIncome Component */
+
+.income-history-container {
+  padding: 20px;
+  padding-top: 80px; /* To prevent content from hiding behind the fixed header */
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  padding: 15px;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.income-back-button {
+  position: flex;
+  top: 20px;
+  left: 20px;
+  background-color: #512da8;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 45%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.income-title {
+  display: inline-block;
+  font-size: 24px;
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.income-search {
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.income-search input {
+  padding: 10px;
+  margin: 5px;
+  width: 180px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.income-content {
+  margin-top: 120px; /* Push content down below the fixed header */
+  padding-bottom: 50px;
+}
+
+.total-income {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.income-list {
+  margin-top: 20px;
+}
+
+.income-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.income-table th, .income-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.no-incomes {
+  color: #ff0000;
+  font-size: 16px;
+}
+
+.loading, .error {
+  font-size: 16px;
+  color: #ff6600;
+}

@@ -28,16 +28,16 @@ const AdminLogin = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      // Log status and raw response for debugging
       console.log('Response Status:', response.status); // Log status code
-      const data = await response.json();  // Get the response as JSON
+      
+      const data = await response.json(); // Get the response as JSON
 
       console.log('Parsed Response:', data); // Log parsed response for debugging
 
       // Handle different response scenarios
       if (response.ok) {
         // Successfully logged in
-        localStorage.setItem('adminToken', data.token); // Store token in localStorage or sessionStorage
+        localStorage.setItem('adminEmail', email); // Store email in localStorage
         navigate('/admin-dashboard'); // Redirect to the dashboard on success
       } else {
         // If response is not OK, show an error message

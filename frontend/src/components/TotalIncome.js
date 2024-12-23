@@ -1,98 +1,146 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "../styles/totalIncome.css"; // Add relevant CSS here
+import axios from "axios";
+import "../styles/totalIncome.css"; // Scoped CSS for TotalIncome
 
 const TotalIncome = () => {
-  const navigate = useNavigate();
-  const [incomeHistory, setIncomeHistory] = useState([]);
+  const [incomes, setIncomes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [totalIncome, setTotalIncome] = useState(0);
-  const [successMessage, setSuccessMessage] = useState('');
 
-  // Fetch income data
+  const [searchTerm, setSearchTerm] = useState({
+    source: "",
+    amount: "",
+    date: "",
+  });
+
   useEffect(() => {
-    const fetchIncomeData = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/income/all");
-        if (response.ok) {
-          const data = await response.json();
-          setIncomeHistory(data);
+    // Fetch income data from the backend
+    const fetchIncomes = async () => {
+      const userEmail = localStorage.getItem("userEmail");
 
-          // Calculate total income
-          const total = data.reduce((sum, item) => sum + item.amount, 0);
-          setTotalIncome(total);
-        } else {
-          console.error("Failed to fetch income data");
-        }
-      } catch (error) {
-        console.error("Error fetching income data:", error);
+      if (!userEmail) {
+        setError("User email not found in localStorage. Please log in.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get("http://localhost:8080/income/all", {
+          params: { email: userEmail }, // Use email from localStorage
+        });
+        // Sort incomes by date (most recent first)
+        const sortedIncomes = response.data.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        setIncomes(sortedIncomes);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch incomes. Please try again later.");
+        setLoading(false);
       }
     };
 
-    fetchIncomeData();
+    fetchIncomes();
   }, []);
 
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
-  };
+  const filteredIncomes = incomes.filter((income) => {
+    const matchesSource =
+      income.source.toLowerCase().includes(searchTerm.source.toLowerCase());
+    const matchesAmount =
+      income.amount.toString().includes(searchTerm.amount);
+    const matchesDate =
+      income.date && income.date.includes(searchTerm.date);
 
-  const handleAddIncome = () => {
-    navigate('/add-income'); // Adjust the route as needed for adding new income
-  };
+    return matchesSource && matchesAmount && matchesDate;
+  });
+
+  // Calculate total income for the filtered data
+  useEffect(() => {
+    const total = filteredIncomes.reduce((sum, income) => sum + income.amount, 0);
+    setTotalIncome(total);
+  }, [filteredIncomes]);
 
   return (
-    <div className="total-income-page">
-      {/* Header Section */}
-      <header className="income-header">
-        <h1>Your Total Income</h1>
-        <p>Track and manage all your income sources in one place.</p>
-      </header>
+    <div className="income-history-container">
+      <div className="fixed-header">
+        {/* Back Button */}
+        <button className="income-back-button" onClick={() => window.history.back()}>
+          ⬅ Back
+        </button>
 
-      {/* Summary Section */}
-      <section className="income-summary">
-        <h2>Total Income This Month</h2>
-        <p className="income-amount">₹{totalIncome}</p>
-        <button onClick={handleAddIncome} className="add-income-btn">Add New Income</button>
-      </section>
+        {/* Title */}
+        <h1 className="income-title">Income History</h1>
 
-      {/* Success Message */}
-      {successMessage && (
-        <div className="success-message">
-          {successMessage}
+        {/* Search Inputs */}
+        <div className="income-search">
+          <input
+            type="text"
+            placeholder="Search by source"
+            value={searchTerm.source}
+            onChange={(e) =>
+              setSearchTerm({ ...searchTerm, source: e.target.value })
+            }
+          />
+          <input
+            type="number"
+            placeholder="Search by amount"
+            value={searchTerm.amount}
+            onChange={(e) =>
+              setSearchTerm({ ...searchTerm, amount: e.target.value })
+            }
+          />
+          <input
+            type="date"
+            placeholder="Search by date"
+            value={searchTerm.date}
+            onChange={(e) =>
+              setSearchTerm({ ...searchTerm, date: e.target.value })
+            }
+          />
         </div>
-      )}
+      </div>
 
-      {/* Income History Section */}
-      <section className="income-history">
-        <h2>Income History</h2>
-        {incomeHistory.length > 0 ? (
-          <table className="income-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Source</th>
-                <th>Amount (₹)</th>
-                <th>Category</th>
-              </tr>
-            </thead>
-            <tbody>
-              {incomeHistory.map((entry, index) => (
-                <tr key={index}>
-                  <td>{new Date(entry.date).toLocaleString()}</td>
-                  <td>{entry.source}</td>
-                  <td>{entry.amount}</td>
-                  <td>{entry.category}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No income history available.</p>
+      {/* Main Content Section */}
+      <div className="income-content">
+        {/* Error or Loading State */}
+        {loading && <p className="loading">Loading incomes...</p>}
+        {error && <p className="error">{error}</p>}
+
+        {!loading && !error && (
+          <>
+            {/* Total Income */}
+            <div className="total-income">
+              <h3>Total Income: ₹{totalIncome.toFixed(2)}</h3>
+            </div>
+
+            {/* Income List */}
+            <div className="income-list">
+              {filteredIncomes.length > 0 ? (
+                <table className="income-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Source</th>
+                      <th>Amount (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredIncomes.map((income) => (
+                      <tr key={income.id}>
+                        <td>{new Date(income.date).toLocaleDateString()}</td>
+                        <td>{income.source}</td>
+                        <td>{income.amount.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="no-incomes">No incomes found.</p>
+              )}
+            </div>
+          </>
         )}
-      </section>
-
-      {/* Back Button */}
-      <div className="back-button-container">
-        <button onClick={handleBackToDashboard} className="back-btn">Back to Dashboard</button>
       </div>
     </div>
   );
