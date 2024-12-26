@@ -362,7 +362,7 @@ html,body{
 }
 
 .bottom-container .prog-status{
-    width: 40%;
+    width: 45%;
 }
 
 .bottom-container .prog-status .header,
@@ -422,7 +422,10 @@ html,body{
 }
 
 .bottom-container .popular{
-    width: 30%;
+    width: 27%;
+}
+.bottom-container .upcoming{
+    width: 27%;
 }
 
 .bottom-container .popular .header,

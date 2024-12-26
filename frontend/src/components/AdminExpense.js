@@ -1,37 +1,51 @@
-import React from 'react';
-import '../styles/AdminExpenses.css'
-const AdminExpenses = () => {
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import '../styles/AdminExpenses.css';  // Import the CSS file scoped for this page
+
+const AdminExpense = () => {
+  const [userExpenses, setUserExpenses] = useState({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if the admin is logged in by checking localStorage
+    const adminEmail = localStorage.getItem('adminEmail');
+    if (!adminEmail) {
+      navigate('/adminLogin'); // Redirect to login page if not logged in
+    }
+
+    // Fetch user expenses from the API
+    fetch('http://localhost:8080/api/admin/userExpenses')
+      .then(response => response.json())
+      .then(data => {
+        setUserExpenses(data.userExpenses); // Update state with user expenses data
+      })
+      .catch(error => {
+        console.error('Error fetching user expenses:', error);
+      });
+  }, [navigate]);
+
   return (
-    <div className="page-container">
-      <h2>Manage Expenses</h2>
-      <div className="filter-options">
-        {/* Implement filters for categories, date range, etc. */}
-        <button>Filter by Date</button>
-        <button>Filter by Category</button>
-      </div>
-      <table className="data-table">
+    <div className="admin-expenses">
+      <h1>User Expenses Breakdown</h1>
+      <table>
         <thead>
           <tr>
-            <th>User</th>
-            <th>Category</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Action</th>
+            <th>User Email</th>
+            <th>Expense Amount</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>John Doe</td>
-            <td>Food</td>
-            <td>$50</td>
-            <td>2024-12-15</td>
-            <td><button>Edit</button></td>
-          </tr>
-          {/* More rows will be added dynamically */}
+          {Object.entries(userExpenses).map(([email, expense]) => (
+            <tr key={email}>
+              <td>{email}</td>
+              <td>₹{expense}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
+      <button onClick={() => navigate('/admin-dashboard')}>Back to Dashboard</button>
     </div>
   );
 };
 
-export default AdminExpenses;
+export default AdminExpense;

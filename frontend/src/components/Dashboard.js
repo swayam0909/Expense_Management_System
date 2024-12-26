@@ -17,7 +17,6 @@ import profileImage from '../assets/profile.png';
 ChartJS.register(CategoryScale, LinearScale, PointElement, BarElement, LineElement, Title, Tooltip, Legend);
 
 const Dashboard = ({ email }) => {
-  const [activeTab, setActiveTab] = useState('1Y'); // Default to '1Y'
   const [date, setDate] = useState(new Date());
   const [user, setUser] = useState(null);
   const [incomeData, setIncomeData] = useState([]);
@@ -72,7 +71,9 @@ const Dashboard = ({ email }) => {
 
   useEffect(() => {
     const email = localStorage.getItem('userEmail');
-
+    if (!email) {
+      navigate('/login'); // Redirect to login page if not logged in
+    }
     // Fetch the weekly expense data from the backend
     axios
       .get(`http://localhost:8080/expense/weekly?email=${email}`)

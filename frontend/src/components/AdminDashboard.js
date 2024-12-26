@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaUsers,
@@ -35,26 +35,100 @@ ChartJS.register(
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [monthlyExpenses, setMonthlyExpenses] = useState(Array(12).fill(0)); // Array to hold expenses for each month
+  const [expenseCategories, setExpenseCategories] = useState({
+    Food: 0,
+    Transport: 0,
+    Utilities: 0,
+    Entertainment: 0,
+    Miscellaneous: 0
+  });
+  const [queries, setQueries] = useState([]); // Initialize as an empty array
+
   useEffect(() => {
     // Check if the email exists in localStorage (to verify if the admin is logged in)
     const adminEmail = localStorage.getItem('adminEmail');
     if (!adminEmail) {
       navigate('/adminLogin'); // Redirect to login page if not logged in
     }
+
+    // Fetch total users count from the API
+    fetch('http://localhost:8080/api/admin/userCounts')
+      .then(response => response.json())
+      .then(data => {
+        setTotalUsers(data.totalUsers); // Update the total users state
+      })
+      .catch(error => {
+        console.error('Error fetching user count:', error);
+      });
+
+    // Fetch user expenses and categories from the API
+    fetch('http://localhost:8080/api/admin/userExpenses')
+      .then(response => response.json())
+      .then(data => {
+        setTotalExpenses(data.totalExpenses); // Update the total expenses state
+
+        // Process the expenses data to calculate monthly expenses and expense categories
+        const monthlyExpensesData = Array(12).fill(0);
+        const categoryExpensesData = {
+          Food: 0,
+          Transport: 0,
+          Utilities: 0,
+          Entertainment: 0,
+          Miscellaneous: 0
+        };
+
+        // Iterating over the user expenses data
+        Object.entries(data.userExpenses).forEach(([email, expenses]) => {
+          const expenseDate = new Date(); // Defaulting to current month as there's no date in the data
+          const month = expenseDate.getMonth(); // Get month (0-11)
+
+          // Sum up monthly expenses (assuming all expenses belong to the current month)
+          monthlyExpensesData[month] += expenses.total;
+
+          // Aggregate expenses based on their category
+          Object.entries(expenses.categories).forEach(([category, expense]) => {
+            categoryExpensesData[category] = (categoryExpensesData[category] || 0) + expense;
+          });
+        });
+
+        setMonthlyExpenses(monthlyExpensesData);
+        setExpenseCategories(categoryExpensesData);
+      })
+      .catch(error => {
+        console.error('Error fetching total expenses:', error);
+      });
+
+    // Fetch recent queries from the backend
+    fetch('http://localhost:8080/api/admin/queries')
+      .then(response => response.json())
+      .then(data => {
+        setQueries(data.queries || []); // Ensure queries is always an array
+      })
+      .catch(error => {
+        console.error('Error fetching queries:', error);
+      });
   }, [navigate]);
+
   // Logout function
   const handleLogout = () => {
     localStorage.removeItem('adminEmail');
     navigate("/"); // Redirect to login page
   };
 
-  // Bar chart data and options
+  // Spring animation for dashboard elements
+  const fadeIn = useSpring({ opacity: 1, from: { opacity: 0 }, config: { duration: 1000 } });
+  const fadeUp = useSpring({ opacity: 1, transform: 'translateY(0)', from: { opacity: 0, transform: 'translateY(20px)' }, config: { duration: 1000 } });
+
+  // Bar chart data for monthly expenses
   const barData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     datasets: [
       {
-        label: 'Monthly Expenses ($)',
-        data: [1200, 1400, 1000, 1600, 2000, 1800],
+        label: 'Monthly Expenses (₹)',
+        data: monthlyExpenses,
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1
@@ -62,46 +136,17 @@ const AdminDashboard = () => {
     ]
   };
 
-  const barOptions = {
-    responsive: true,
-    plugins: {
-      title: {
-        display: true,
-        text: 'Monthly Expenses'
-      },
-      tooltip: {
-        callbacks: {
-          label: (tooltipItem) => `$${tooltipItem.raw}`
-        }
-      }
-    }
-  };
-
-  // Pie chart data and options
+  // Pie chart data for expense categories
   const pieData = {
-    labels: ['Rent', 'Groceries', 'Utilities', 'Entertainment', 'Others'],
+    labels: Object.keys(expenseCategories),
     datasets: [
       {
-        data: [40, 20, 15, 10, 15],
+        data: Object.values(expenseCategories),
         backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0', '#ff9f40'],
         hoverOffset: 4
       }
     ]
   };
-
-  const pieOptions = {
-    responsive: true,
-    plugins: {
-      title: {
-        display: true,
-        text: 'Expense Categories Breakdown'
-      }
-    }
-  };
-
-  // Spring animation for dashboard elements
-  const fadeIn = useSpring({ opacity: 1, from: { opacity: 0 }, config: { duration: 1000 } });
-  const fadeUp = useSpring({ opacity: 1, transform: 'translateY(0)', from: { opacity: 0, transform: 'translateY(20px)' }, config: { duration: 1000 } });
 
   return (
     <div className="admin-dashboard">
@@ -132,15 +177,15 @@ const AdminDashboard = () => {
         <section className="admin-widgets" style={fadeUp}>
           <div className="admin-widget">
             <h3>Total Users</h3>
-            <p>120</p>
+            <p>{totalUsers}</p>
           </div>
-          <div className="admin-widget">
+          <div className="admin-widget" onClick={() => navigate('/admin-expenses')}>
             <h3>Total Expenses</h3>
-            <p>$25,000</p>
+            <p>₹{totalExpenses}</p>
           </div>
           <div className="admin-widget">
-            <h3>Active Goals</h3>
-            <p>15</p>
+            <h3>Total Queries</h3>
+            <p>{queries.length}</p> {/* Dynamically display the number of queries */}
           </div>
         </section>
 
@@ -149,10 +194,10 @@ const AdminDashboard = () => {
           <h2>Expense Trends</h2>
           <div className="admin-charts">
             <div className="admin-chart">
-              <Bar data={barData} options={barOptions} />
+              <Bar data={barData} options={{ responsive: true }} />
             </div>
             <div className="admin-chart">
-              <Pie data={pieData} options={pieOptions} />
+              <Pie data={pieData} options={{ responsive: true }} />
             </div>
           </div>
         </animated.section>
@@ -169,26 +214,19 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>John Doe</td>
-                <td>How to set a goal?</td>
-                <td>Pending</td>
-              </tr>
-              <tr>
-                <td>Jane Smith</td>
-                <td>Expense report not updating</td>
-                <td>Resolved</td>
-              </tr>
-              <tr>
-                <td>Mike Johnson</td>
-                <td>How to track expenses?</td>
-                <td>Pending</td>
-              </tr>
-              <tr>
-                <td>Anna Lee</td>
-                <td>Unable to login</td>
-                <td>Pending</td>
-              </tr>
+              {queries.length > 0 ? (
+                queries.map(query => (
+                  <tr key={query.id}>
+                    <td>{query.user}</td>
+                    <td>{query.text}</td>
+                    <td>{query.status}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3">No queries available</td>
+                </tr>
+              )}
             </tbody>
           </table>
           <button className="admin-see-more-btn">See More</button>
