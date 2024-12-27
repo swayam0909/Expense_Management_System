@@ -26,7 +26,6 @@ const Profile = () => {
         value={profile.email}
         onChange={handleChange}
       />
-      <button>Save Changes</button>
     </div>
   );
 };
