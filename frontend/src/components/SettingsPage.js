@@ -88,11 +88,12 @@ const SettingsPage = () => {
   const handleProfileSave = () => {
     console.log("Profile updated:", userDetails);
     setIsEditProfileVisible(false);
+    localStorage.setItem('userDetails', JSON.stringify(userDetails));
   };
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
-    setUserDetails((prev) => ({ ...prev, profilePicture: file }));
+    setUserDetails((prev) => ({ ...prev, profilePicture: URL.createObjectURL(file) }));
   };
 
   const toggleFAQ = (index) => {
