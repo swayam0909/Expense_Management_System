@@ -200,18 +200,75 @@ body.dark-mode {
   text-align: center;
   margin-top: 20px;
 }
+/* SettingsPage.css */
 
-@media (max-width: 768px) {
-  .settings-container {
-    padding: 15px;
-  }
+/* Existing styles remain unchanged */
 
-  .settings-button {
-    font-size: 0.9rem;
-  }
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  backdrop-filter: blur(5px); /* Apply blur effect */
+  z-index: 999;
+}
 
-  .faq-title,
-  .section-title {
-    font-size: 1.4rem;
-  }
+.overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Prevents interaction with the background when overlay is shown */
+.overlay .background {
+  pointer-events: none;
+}
+
+/* Form input styling inside the overlay */
+.overlay-content h2,
+.overlay-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.overlay-content .form-group {
+  margin-bottom: 15px;
+}
+
+.overlay-content input,
+.overlay-content textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.overlay-content button {
+  display: block;
+  margin: 10px 0;
+  width: 100%;
+  padding: 10px;
+}
+
+.overlay-content .back-btn {
+  background-color: #6c757d;
+}
+
+.overlay-content .submit-btn {
+  background-color: #512da8;
+}
+
+.overlay-content .cancel-btn {
+  background-color: #c82333;
 }
