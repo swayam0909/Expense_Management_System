@@ -11,7 +11,7 @@ const SettingsPage = () => {
   const [isPrivacyPolicyVisible, setIsPrivacyPolicyVisible] = useState(false);
   const [isEditProfileVisible, setIsEditProfileVisible] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
-  const [userDetails, setUser_Details] = useState({
+  const [userDetails, setUserDetails] = useState({
     name: "John Doe",
     email: "johndoe@example.com",
     phone: "+1234567890",
@@ -82,15 +82,17 @@ const SettingsPage = () => {
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
-    setUser_Details((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
+    setUserDetails((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleProfileSave = () => {
     console.log("Profile updated:", userDetails);
     setIsEditProfileVisible(false);
+  };
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    setUserDetails((prev) => ({ ...prev, profilePicture: file }));
   };
 
   const toggleFAQ = (index) => {
@@ -274,6 +276,15 @@ const SettingsPage = () => {
                   value={userDetails.phone}
                   onChange={handleProfileChange}
                   placeholder="Enter your phone number"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="profilePicture">Profile Picture</label>
+                <input
+                  type="file"
+                  id="profilePicture"
+                  name="profilePicture"
+                  onChange={handleProfilePictureChange}
                 />
               </div>
               <button type="button" className="submit-btn" onClick={handleProfileSave}>Save Changes</button>

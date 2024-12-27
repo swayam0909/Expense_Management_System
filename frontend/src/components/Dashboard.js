@@ -68,6 +68,17 @@ const Dashboard = ({ email }) => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const handleEditProfile = () => {
+    navigate('/settings'); // Redirect to the profile page
+  };
+
+  const handleLogout = () => {
+    // Clear the user data from localStorage
+    localStorage.removeItem('userEmail');
+  
+    // Redirect to the login page
+    navigate('/');
+  };
 
   useEffect(() => {
     const email = localStorage.getItem('userEmail');
@@ -227,14 +238,6 @@ const Dashboard = ({ email }) => {
   };
 
 
-  const handleLogout = () => {
-    // Clear the user data from localStorage
-    localStorage.removeItem('userEmail');
-  
-    // Redirect to the login page
-    navigate('/');
-  };
-
   useEffect(() => {
     setCashFlow(lastMonthIncome - lastMonthExpense);
   }, [lastMonthIncome, lastMonthExpense]);
@@ -266,7 +269,6 @@ const Dashboard = ({ email }) => {
           </div>
 
           <div className="right-section">
-
             <div className="profile">
               <div className="info" onClick={toggleDropdown} style={{cursor:"pointer"}}>
               <img src={profileImage} alt="Profile" 
@@ -276,11 +278,11 @@ const Dashboard = ({ email }) => {
                 </div>
               </div>
               <i className="bx bx-chevron-down"></i>
-              {isDropdownOpen &&(
-                <div className="drowdown-menu">
+              {isDropdownOpen && (
+                <div className="dropdown-menu">
+                  <button onClick={handleEditProfile}>Edit Profile</button>
                   <button onClick={handleLogout}>Logout</button>
-                  
-                  </div>
+                </div>
               )}
             </div>
           </div>
