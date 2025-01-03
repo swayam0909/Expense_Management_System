@@ -374,14 +374,11 @@ const Dashboard = ({ email }) => {
           
           <div className="details">
             <div className="item">
-              <h2>Expense</h2>
+              <h2>Expense & Income</h2>
               <p>Chart</p>
             </div>
             <div className="separator"></div>
-            <div className="item">
-              <h2>Income</h2>
-              <p>Chart</p>
-            </div>
+            
           </div>
            
           <div className="chart-container">

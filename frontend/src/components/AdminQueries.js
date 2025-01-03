@@ -1,61 +1,52 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
+import axios from "axios"; // Import axios for API requests
 import "../styles/AdminQueries.css";
 
 const AdminQueries = () => {
-  const [queries, setQueries] = useState([]);
+  const [queries, setQueries] = useState([]); // Holds the fetched queries
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const queriesPerPage = 5;
 
+  // Fetch queries from the API when the component mounts
   useEffect(() => {
-    // Dummy data for testing UI
-    const dummyData = [
-      {
-        id: 1,
-        date: "2024-12-22",
-        title: "Payment Issue",
-        description: "I am unable to process my payment through the app.",
-        status: "Pending",
-      },
-      {
-        id: 2,
-        date: "2024-12-21",
-        title: "Feature Request",
-        description: "It would be great to have a dark mode in the app.",
-        status: "Resolved",
-      },
-      {
-        id: 3,
-        date: "2024-12-20",
-        title: "Bug Report",
-        description: "The app crashes when I try to upload an image.",
-        status: "In Progress",
-      },
-      {
-        id: 4,
-        date: "2024-12-19",
-        title: "Login Issue",
-        description: "I cannot log in after updating my password.",
-        status: "Pending",
-      },
-      {
-        id: 5,
-        date: "2024-12-18",
-        title: "Suggestion",
-        description: "Consider adding a referral program.",
-        status: "Resolved",
-      },
-    ];
-    setQueries(dummyData);
+    const fetchQueries = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/auth/get-all-queries");
+        if (response.data.status === "success" && Array.isArray(response.data.data)) {
+          setQueries(response.data.data); // Set fetched queries to state
+        } else {
+          console.error("Unexpected response format:", response.data);
+          setQueries([]); // Set empty array if the response format is not as expected
+        }
+      } catch (error) {
+        console.error("Error fetching queries:", error);
+        setQueries([]); // In case of an error, set empty array
+      }
+    };
+
+    fetchQueries();
   }, []);
 
-  const filteredQueries = queries.filter(
-    (query) =>
-      query.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      query.date.includes(searchTerm)
-  );
+  // Handle marking a query as resolved
+  const markAsResolved = (id) => {
+    setQueries((prevQueries) =>
+      prevQueries.map((query) =>
+        query.id === id ? { ...query, resolved: true } : query
+      )
+    );
+  };
 
+  // Filter queries based on the search term
+  const filteredQueries = queries.filter((query) => {
+    // Ensure query.query and query.email are defined before calling toLowerCase
+    const queryText = query.query ? query.query.toLowerCase() : '';
+    const emailText = query.email ? query.email.toLowerCase() : '';
+    return queryText.includes(searchTerm.toLowerCase()) || emailText.includes(searchTerm.toLowerCase());
+  });
+
+  // Calculate pagination
   const totalPages = Math.ceil(filteredQueries.length / queriesPerPage);
   const displayedQueries = filteredQueries.slice(
     (currentPage - 1) * queriesPerPage,
@@ -69,7 +60,7 @@ const AdminQueries = () => {
         <div className="queries-search">
           <input
             type="text"
-            placeholder="Search by title or date..."
+            placeholder="Search by query or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -85,20 +76,32 @@ const AdminQueries = () => {
             <table className="queries-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Title</th>
-                  <th>Description</th>
+                  <th>Name</th>
+                  <th>Mobile No</th>
+                  <th>Email</th>
+                  <th>Query</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {displayedQueries.map((query) => (
                   <tr key={query.id}>
-                    <td>{new Date(query.date).toLocaleDateString()}</td>
-                    <td>{query.title}</td>
-                    <td>{query.description}</td>
-                    <td className={`status ${query.status.toLowerCase()}`}>
-                      {query.status}
+                    <td>{query.name}</td>
+                    <td>{query.phone}</td>
+                    <td>{query.email}</td>
+                    <td>{query.query}</td>
+                    <td>
+                      {/* Add button to mark query as resolved */}
+                      {query.resolved ? (
+                        <span className="resolved">Resolved</span>
+                      ) : (
+                        <button
+                          onClick={() => markAsResolved(query.id)}
+                          className="resolve-btn"
+                        >
+                          Mark as Resolved
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

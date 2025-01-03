@@ -20,6 +20,7 @@ import {
   ArcElement
 } from 'chart.js';
 import { useSpring, animated } from 'react-spring';
+import axios from 'axios'; // Add axios import
 import "../styles/AdminDashboard.css"; // Ensure correct path to the CSS file
 
 // Register the chart components
@@ -101,15 +102,23 @@ const AdminDashboard = () => {
         console.error('Error fetching total expenses:', error);
       });
 
-    // Fetch recent queries from the backend
-    fetch('http://localhost:8080/api/admin/queries')
-      .then(response => response.json())
-      .then(data => {
-        setQueries(data.queries || []); // Ensure queries is always an array
-      })
-      .catch(error => {
-        console.error('Error fetching queries:', error);
-      });
+    // Fetch recent queries from the backend using axios
+    const fetchQueries = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/auth/get-all-queries");
+        if (response.data.status === "success" && Array.isArray(response.data.data)) {
+          setQueries(response.data.data); // Set fetched queries to state
+        } else {
+          console.error("Unexpected response format:", response.data);
+          setQueries([]); // Set empty array if the response format is not as expected
+        }
+      } catch (error) {
+        console.error("Error fetching queries:", error);
+        setQueries([]); // In case of an error, set empty array
+      }
+    };
+
+    fetchQueries(); // Call the fetch function when the component mounts
   }, [navigate]);
 
   // Logout function
@@ -147,6 +156,9 @@ const AdminDashboard = () => {
       }
     ]
   };
+
+  // Display only the first 4 queries
+  const latestQueries = queries.slice(0, 4);
 
   return (
     <div className="admin-dashboard">
@@ -208,18 +220,18 @@ const AdminDashboard = () => {
           <table className="admin-data-table">
             <thead>
               <tr>
-                <th>User</th>
+                <th>Name</th>
                 <th>Query</th>
-                <th>Status</th>
+                <th>Mobile No.</th>
               </tr>
             </thead>
             <tbody>
-              {queries.length > 0 ? (
-                queries.map(query => (
+              {latestQueries.length > 0 ? (
+                latestQueries.map(query => (
                   <tr key={query.id}>
-                    <td>{query.user}</td>
-                    <td>{query.text}</td>
-                    <td>{query.status}</td>
+                    <td>{query.name}</td> {/* Display Name */}
+                    <td>{query.text}</td> {/* Display Query */}
+                    <td>{query.mobileNo}</td> {/* Display Mobile No. */}
                   </tr>
                 ))
               ) : (
@@ -229,7 +241,9 @@ const AdminDashboard = () => {
               )}
             </tbody>
           </table>
-          <button className="admin-see-more-btn">See More</button>
+          <button className="admin-see-more-btn" onClick={() => navigate('/admin-queries')}>
+            See More
+          </button>
         </section>
       </main>
     </div>
